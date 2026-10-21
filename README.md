@@ -56,11 +56,11 @@ También incluye:
 
 - Ruta: `app/build/outputs/apk/release/app-release.apk`
 - Paquete: `com.fiestadecartas.app`
-- Versión: `1.3.0` (versionCode 4)
+- Versión: `1.3.1` (versionCode 5)
 - Compatible con Android 7.0 o superior (API 24+); probada en Android 14 (API 34).
 - Firma: certificado de producción `CN=Fiesta de Cartas`, creado con el keystore `fiesta-release.jks`.
-- SHA-256 del APK: `F65A1EF2FA0CD96965B16AA652E170B7FCCBBCCA18352E9A8C429F6F360F0F3D`
-- Tamaño: 35.370.394 bytes (35,4 MB).
+- SHA-256 del APK: `62394A0D39DD36DD8AE44FD27A91559C76B7F5FACF0E24FAB611D5E46B1D5D3C`
+- Tamaño: 35.370.398 bytes (35,4 MB).
 
 ### Instalar en un teléfono
 

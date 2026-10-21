@@ -4,6 +4,15 @@ All notable changes to Fiesta de Cartas are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 semantic versioning.
 
+## [1.3.1] — 2026-10-21
+
+### Fixed
+
+- Seasonal background no longer recomposes the whole screen every animation frame;
+  only the decorative layer updates, improving scrolling and battery use.
+- The background animation runs at a calmer 22 fps, which is enough for fog and
+  particles without competing with card animations.
+
 ## [1.3.0] — 2026-10-21
 
 ### Added

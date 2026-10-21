@@ -56,22 +56,6 @@ fun FiestaBackground(content: @Composable BoxScope.() -> Unit) {
     val palette = LocalPalette.current
     val festival = LocalFestival.current
     val dark = MaterialTheme.colorScheme.background.luminance() < 0.5f
-    var phase by remember { mutableFloatStateOf(0f) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(45)
-            phase = (phase + 0.0018f) % 1f
-        }
-    }
-    val emojis = when (festival.key) {
-        "halloween" -> listOf("🎃", "🦇", "🌙", "💀", "🕯️")
-        "christmas" -> listOf("🎄", "⭐", "🎁", "🔔", "🌟")
-        "reyes" -> listOf("👑", "⭐", "🐪", "🎁", "✨")
-        "valentine" -> listOf("❤️", "🌹", "💌", "✨", "💘")
-        "easter" -> listOf("🐣", "🌷", "🦋", "🥚", "🌼")
-        "semana" -> listOf("✝️", "🕯️", "🌿", "🙏", "⛪")
-        else -> listOf("🎉", "🃏", "🌴", "🎶", "✨")
-    }
     Box(
         Modifier
             .fillMaxSize()
@@ -95,39 +79,66 @@ fun FiestaBackground(content: @Composable BoxScope.() -> Unit) {
                 )
             )
     ) {
-        Canvas(Modifier.fillMaxSize()) {
-            val step = 64.dp.toPx()
-            var x = 0f
-            while (x < size.width) {
-                var y = 0f
-                while (y < size.height) {
-                    drawCircle(
-                        color = palette.accent.copy(alpha = if (dark) 0.035f else 0.05f),
-                        radius = 2f,
-                        center = Offset(x, y)
-                    )
-                    y += step
-                }
-                x += step
-            }
-            drawSeasonalScene(festival, palette, phase, dark)
-        }
-        emojis.forEachIndexed { i, e ->
-            val x = (0.12f + 0.19f * i) * 1000f
-            val y = (0.08f + 0.17f * ((i * 3) % 5)) * 1600f
-            Text(
-                e,
-                fontSize = (34 + (i % 3) * 10).sp,
-                modifier = Modifier
-                    .offset(
-                        x = (x / 3.2f).dp,
-                        y = (y / 3.6f + sin(phase * 6.283f + i) * 8f).dp
-                    )
-                    .rotate(i * 17f + sin(phase * 6.283f + i * 2f) * 7f)
-                    .alpha(if (dark) 0.10f else 0.13f)
-            )
-        }
+        SeasonalBackdrop(festival, palette, dark)
         content()
+    }
+}
+
+@Composable
+private fun SeasonalBackdrop(
+    festival: Festival,
+    palette: com.fiestadecartas.app.ui.theme.FestivalPalette,
+    dark: Boolean
+) {
+    var phase by remember { mutableFloatStateOf(0f) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(45)
+            phase = (phase + 0.0018f) % 1f
+        }
+    }
+    val emojis = remember(festival) {
+        when (festival.key) {
+            "halloween" -> listOf("🎃", "🦇", "🌙", "💀", "🕯️")
+            "christmas" -> listOf("🎄", "⭐", "🎁", "🔔", "🌟")
+            "reyes" -> listOf("👑", "⭐", "🐪", "🎁", "✨")
+            "valentine" -> listOf("❤️", "🌹", "💌", "✨", "💘")
+            "easter" -> listOf("🐣", "🌷", "🦋", "🥚", "🌼")
+            "semana" -> listOf("✝️", "🕯️", "🌿", "🙏", "⛪")
+            else -> listOf("🎉", "🃏", "🌴", "🎶", "✨")
+        }
+    }
+    Canvas(Modifier.fillMaxSize()) {
+        val step = 64.dp.toPx()
+        var x = 0f
+        while (x < size.width) {
+            var y = 0f
+            while (y < size.height) {
+                drawCircle(
+                    color = palette.accent.copy(alpha = if (dark) 0.035f else 0.05f),
+                    radius = 2f,
+                    center = Offset(x, y)
+                )
+                y += step
+            }
+            x += step
+        }
+        drawSeasonalScene(festival, palette, phase, dark)
+    }
+    emojis.forEachIndexed { i, e ->
+        val x = (0.12f + 0.19f * i) * 1000f
+        val y = (0.08f + 0.17f * ((i * 3) % 5)) * 1600f
+        Text(
+            e,
+            fontSize = (34 + (i % 3) * 10).sp,
+            modifier = Modifier
+                .offset(
+                    x = (x / 3.2f).dp,
+                    y = (y / 3.6f + sin(phase * 6.283f + i) * 8f).dp
+                )
+                .rotate(i * 17f + sin(phase * 6.283f + i * 2f) * 7f)
+                .alpha(if (dark) 0.10f else 0.13f)
+        )
     }
 }
 
