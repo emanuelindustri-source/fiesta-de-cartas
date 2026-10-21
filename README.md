@@ -95,7 +95,7 @@ Detalles del modo WiFi:
 - Hay soporte para **un invitado por sala**; el resto de asientos se completan con bots (Ludo: 4 jugadores; Caída y Fiesta: según las reglas configuradas, de 2 a 4; Kemix y Nervioso: 4).
 - Todos los juegos tienen modo WiFi, modo contra bots y modo sin bots en el mismo teléfono.
 - Si se pierde la conexión, el invitado vuelve al inicio con un aviso.
-- Probado en Android 14 con dos dispositivos: invitado conectado, inicio de partida, acciones del invitado al anfitrión y del anfitrión al invitado. Las acciones de red ya no se ejecutan en el hilo de la interfaz.
+- Probado en Android 14 con dos dispositivos en Caída: invitado conectado, inicio de partida y acciones en ambos sentidos. Kemix y Nervioso usan el mismo protocolo de acciones; conviene probarlos en dos teléfonos reales antes de un torneo.
 
 ## Perfil, niveles y avatares
 
@@ -288,8 +288,7 @@ No se suben partidas ni datos personales a ningún servidor propio. AdMob puede 
 ## Limitaciones conocidas
 
 - Los comentarios generados por los motores de juego (por ejemplo, “Bot 2 jugó…”) están en español aunque la interfaz esté en otro idioma.
-- El modo WiFi admite un invitado por sala; el resto son bots.
-- Kemix y Nervioso no tienen modo WiFi todavía.
+- El modo WiFi permite un invitado por sala; el resto son bots.
 - La primera vez que se comparte la APK, Android puede pedir permiso para instalar apps desconocidas; es normal en una app fuera de Google Play.
 - Los anuncios son de prueba hasta sustituir los IDs de AdMob.
 

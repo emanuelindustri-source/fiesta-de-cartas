@@ -94,7 +94,6 @@ inspirados en fauna venezolana.
 ## Deuda técnica conocida
 
 - Un solo invitado por sala; el resto son bots.
-- Kemix y Nervioso aún no tienen modo WiFi.
 - Los mensajes internos de los motores están en español; la interfaz sí está
   traducida.
 - El modo con dinero real no está implementado; ver `ONLINE_ROADMAP.md`.
