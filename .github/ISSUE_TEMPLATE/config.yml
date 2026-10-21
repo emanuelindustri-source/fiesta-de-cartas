@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: https://github.com/emanuelindustri-source/fiesta-de-cartas/security/policy
+    about: Please report vulnerabilities privately by email, not in a public issue.
+  - name: Contact the creator
+    url: mailto:emanuel.industri@gmail.com
+    about: Licensing, partnerships, press or privacy questions.
