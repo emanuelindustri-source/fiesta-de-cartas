@@ -32,6 +32,8 @@ import com.fiestadecartas.app.Screen
 import com.fiestadecartas.app.ads.Interstitial
 import com.fiestadecartas.app.data.Avatars
 import com.fiestadecartas.app.data.BotSettings
+import com.fiestadecartas.app.data.Cosmetics
+import com.fiestadecartas.app.data.MatchTracker
 import com.fiestadecartas.app.data.GameConfig
 import com.fiestadecartas.app.data.Prefs
 import com.fiestadecartas.app.data.Profile
@@ -161,7 +163,21 @@ fun FiestaScreen(lan: Boolean = false, hotseat: Boolean = false) {
     LaunchedEffect(game.phase) {
         if (game.phase == FiestaPhase.OVER && !recorded) {
             recorded = true
-            Prefs.recordResult(game.winner == mySeat && !isLan)
+            val mode = when {
+                isLan -> "wifi"
+                localHotseat -> "hotseat"
+                else -> "bots"
+            }
+            MatchTracker.record(
+                gameId = "fiesta",
+                won = game.winner == mySeat,
+                score = game.scores.getOrElse(mySeat) { 0 },
+                mode = mode,
+                players = names.size,
+                seed = seed + restart * 71L,
+                names = names,
+                messages = history.toList()
+            )
             Feedback.win()
             Interstitial.maybeShow(activity)
         }
@@ -241,7 +257,11 @@ fun FiestaScreen(lan: Boolean = false, hotseat: Boolean = false) {
                 Modifier.fillMaxWidth().height(210.dp)
                     .background(
                         Brush.radialGradient(
-                            listOf(colorOf(game.color).copy(alpha = 0.32f), Color.Transparent)
+                            listOf(
+                                colorOf(game.color).copy(alpha = 0.32f),
+                                Color(Cosmetics.felt.color).copy(alpha = 0.55f),
+                                Color.Transparent
+                            )
                         )
                     ),
                 contentAlignment = Alignment.Center

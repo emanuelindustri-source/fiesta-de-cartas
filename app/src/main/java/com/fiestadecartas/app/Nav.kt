@@ -9,6 +9,10 @@ sealed class Screen {
     data object Settings : Screen()
     data object Profile : Screen()
     data object Review : Screen()
+    data object Progress : Screen()
+    data object Shop : Screen()
+    data object Stats : Screen()
+    data object Replay : Screen()
     data class Game(val id: String, val lan: Boolean = false, val hotseat: Boolean = false) : Screen()
     data class Lobby(val game: String) : Screen()
     data object Scanner : Screen()
@@ -20,4 +24,8 @@ sealed class Screen {
 object Nav {
     var screen by mutableStateOf<Screen>(Screen.Home)
     fun go(target: Screen) { screen = target }
+}
+
+object ReplaySelection {
+    var record by mutableStateOf<com.fiestadecartas.app.data.MatchRecord?>(null)
 }

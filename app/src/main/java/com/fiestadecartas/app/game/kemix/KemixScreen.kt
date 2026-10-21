@@ -29,6 +29,7 @@ import com.fiestadecartas.app.Screen
 import com.fiestadecartas.app.ads.Interstitial
 import com.fiestadecartas.app.data.Avatars
 import com.fiestadecartas.app.data.BotSettings
+import com.fiestadecartas.app.data.MatchTracker
 import com.fiestadecartas.app.data.Prefs
 import com.fiestadecartas.app.data.Profile
 import com.fiestadecartas.app.net.LanSession
@@ -157,7 +158,21 @@ fun KemixScreen(lan: Boolean = false, hotseat: Boolean = false) {
     LaunchedEffect(game.phase) {
         if (game.phase == KemixPhase.OVER && !recorded) {
             recorded = true
-            Prefs.recordResult(game.winner == mySeat)
+            val mode = when {
+                isLan -> "wifi"
+                localHotseat -> "hotseat"
+                else -> "bots"
+            }
+            MatchTracker.record(
+                gameId = "kemix",
+                won = game.winner == mySeat,
+                score = game.pairs.getOrElse(mySeat) { 0 },
+                mode = mode,
+                players = names.size,
+                seed = seed + restart * 53L,
+                names = names,
+                messages = history.toList()
+            )
             if (game.winner == activeSeat) Feedback.win() else Feedback.error()
             Interstitial.maybeShow(activity)
         }

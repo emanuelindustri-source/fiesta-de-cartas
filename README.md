@@ -26,6 +26,7 @@ App Android nativa de juegos de cartas y tablero con temática venezolana, arte 
 | **Fiesta de Colores** | Bots / WiFi | Juego tipo UNO con colores, acciones, comodines y grito de ¡Fiesta! |
 | **Kemix** | Bots | Juego de memoria: encuentra parejas de familias venezolanas. |
 | **Nervioso** | Bots | Descarta, cuenta en voz alta y toca la pila primero. |
+| **Dominó** | Bots / sin bots | Dominó venezolano de 28 fichas: encadena, roba y cierra la mesa. |
 
 También incluye:
 
@@ -38,7 +39,8 @@ También incluye:
 - **Perfil con niveles 1–100**: cada partida da puntos de experiencia; ganar da más. La curva está pensada para durar meses y el progreso queda guardado en el teléfono.
 - **10 avatares originales** inspirados en la fauna venezolana (turpial, guacamaya, jaguar, caimán, delfín, tortuga, mono, flamenco, mariposa y ardilla). Se eligen en el Perfil y reaccionan durante las partidas.
 - **Reglas configurables** antes de cada partida: número de jugadores y puntos objetivo en Caída y Fiesta de Colores, fichas para ganar en Ludo y cartas iniciales en Nervioso.
-- **Historial de partida** en los cinco juegos: las últimas 5 jugadas siempre visibles y un submenú con el historial completo, copiable al portapapeles.
+- **Historial de partida** en los seis juegos: las últimas 5 jugadas siempre visibles y un submenú con el historial completo, copiable al portapapeles.
+- **Logros, misiones diarias y tienda**: gana monedas, desbloquea dorsos de carta, tapetes y avatares. Todo se compra con monedas ganadas jugando, sin dinero real.
 - **Dificultad de bots** configurable: Relajado comete errores, Equilibrado juega bien y Desafiante castiga los descuidos.
 - **Música y efectos en estéreo 44,1 kHz** con ambientes por temporada y sonidos de reparto, golpe, canto, dado, victoria y moneda.
 - **Animaciones fluidas**: reparto, carta que vuela en Caída y Fiesta de Colores, volteo 3D de Kemix, mesa que tiembla, dado que rebota y fichas con volumen.
@@ -46,7 +48,7 @@ También incluye:
 - **Temporadas en toda la app**: octubre se vive como Halloween en el fondo, los menús, los títulos, las partículas, los sonidos y los textos. Navidad, Reyes, San Valentín, Pascua y Semana Santa tienen su propia escena y ambiente sonoro.
 - **Arte renovado**: baraja española con papel envejecido, esquinas ornamentadas, pips reales y figuras de Rey, Caballo y Sota; cartas de colores con brillo, dado 3D, tablero de Ludo con marco de madera, estrellas y fichas con volumen, y monedas dibujadas.
 - **Sonido ambiental por temporada** y efectos de reparto, golpe, canto, dado, victoria y moneda. Se apaga desde Ajustes.
-- **Modo sin bots** (pasar el teléfono) en los cinco juegos, además de bots y WiFi.
+- **Modo sin bots** (pasar el teléfono) en los seis juegos; Caída, Ludo, Fiesta de Colores, Kemix y Nervioso también tienen WiFi.
 - **Apoyo opcional con Honeygain**: solo si el usuario acepta, comparte ancho de banda mientras juega; se puede desactivar y nunca corre en segundo plano. Requiere descargar la AAR y configurar la clave (ver `docs/HONEYGAIN.md`).
 - **Calificar la app** desde Perfil o Ajustes: estrellas, categorías y comentario que se envían por correo a `emanuel.industri@gmail.com` usando la app de correo del teléfono.
 - **Detección de dispositivo** (teléfono, tablet, TV o doble pantalla) y diseño adaptable; en TV se puede navegar con el mando.
@@ -56,11 +58,11 @@ También incluye:
 
 - Ruta: `app/build/outputs/apk/release/app-release.apk`
 - Paquete: `com.fiestadecartas.app`
-- Versión: `1.3.1` (versionCode 5)
+- Versión: `1.4.0` (versionCode 6)
 - Compatible con Android 7.0 o superior (API 24+); probada en Android 14 (API 34).
 - Firma: certificado de producción `CN=Fiesta de Cartas`, creado con el keystore `fiesta-release.jks`.
-- SHA-256 del APK: `FC934B5F4213A4C3C0DA3E97D839B5E12303259BD90548CF83D120F88433CE0B`
-- Tamaño: 35.370.398 bytes (35,4 MB).
+- SHA-256 del APK: `B68A6E15C4C3266D86902212A4EC6796ACF43341C36B0B5EB6AE0DF7C94F4D35`
+- Tamaño: 35.450.958 bytes (35,5 MB).
 
 ### Instalar en un teléfono
 
@@ -119,6 +121,7 @@ Al tocar una tarjeta de juego aparece la configuración de la partida:
 | Ludo | 4 jugadores; 2, 3 o 4 fichas para ganar |
 | Nervioso | 5, 7 o 9 cartas iniciales |
 | Kemix | 6 parejas y 4 jugadores |
+| Dominó | 2, 3 o 4 jugadores; 50, 100, 150 o 200 puntos |
 
 El anfitrión usa el número de jugadores elegido al crear la sala WiFi.
 
@@ -127,6 +130,15 @@ El anfitrión usa el número de jugadores elegido al crear la sala WiFi.
 - Mientras juegas, la franja **Últimas jugadas** muestra los cinco movimientos más recientes.
 - El botón de historial (o **Ver todo**) abre el registro completo de la partida, con la opción de copiarlo al portapapeles.
 - El historial se reinicia al empezar una partida nueva y no se envía a ningún servidor.
+
+## Logros, misiones, monedas y tienda
+
+- Cada partida guarda estadísticas por juego y las **últimas 20 partidas** en el perfil.
+- Las **misiones diarias** se renuevan cada día: jugar 2 partidas, ganar 1 y jugar con amigos o sin bots.
+- Los **logros** premian victorias, partidas y progreso (por ejemplo, 10 victorias o nivel 10).
+- Las **monedas** se ganan jugando y reclamando misiones/logros. No se compran con dinero real.
+- En la **Tienda** se desbloquean dorsos de carta, tapetes y avatares. Todo es cosmético: no cambia las reglas ni las probabilidades.
+- En **Estadísticas** puedes ver partidas, victorias, mejor puntaje y abrir una **repetición narrada** de cada partida guardada, con su semilla y sus jugadas.
 
 ## Dificultad de los bots
 
@@ -138,7 +150,7 @@ Antes de empezar puedes elegir:
 | **Equilibrado** | Juega bien, pero deja oportunidades. Es el nivel por defecto. |
 | **Desafiante** | Prioriza capturas, seguridad y puntos; castiga los descuidos. |
 
-La dificultad se guarda y se aplica a Caída, Ludo, Fiesta de Colores, Kemix y Nervioso.
+La dificultad se guarda y se aplica a Caída, Ludo, Fiesta de Colores, Kemix, Nervioso y Dominó.
 
 ## Calificar la app y comentarios
 

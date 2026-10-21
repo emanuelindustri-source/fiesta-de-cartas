@@ -42,6 +42,8 @@ object Profile {
         private set
     var chips by mutableIntStateOf(500)
         private set
+    var coins by mutableIntStateOf(350)
+        private set
     var levelUpTo by mutableIntStateOf(0)
         private set
 
@@ -81,6 +83,7 @@ object Profile {
         xp = sp.getInt("xp", 0)
         avatarId = sp.getString("avatar", "turpial") ?: "turpial"
         chips = sp.getInt("chips", 500)
+        coins = sp.getInt("coins", 350)
     }
 
     /** Adds points and returns how many levels were gained. */
@@ -109,9 +112,22 @@ object Profile {
         sp.edit().putInt("chips", chips).apply()
     }
 
+    fun addCoins(amount: Int) {
+        coins = (coins + amount).coerceAtLeast(0)
+        sp.edit().putInt("coins", coins).apply()
+    }
+
+    fun spendCoins(amount: Int): Boolean {
+        if (amount < 0 || coins < amount) return false
+        coins -= amount
+        sp.edit().putInt("coins", coins).apply()
+        return true
+    }
+
     fun reset() {
         xp = 0
         chips = 500
-        sp.edit().putInt("xp", 0).putInt("chips", 500).apply()
+        coins = 350
+        sp.edit().putInt("xp", 0).putInt("chips", 500).putInt("coins", 350).apply()
     }
 }

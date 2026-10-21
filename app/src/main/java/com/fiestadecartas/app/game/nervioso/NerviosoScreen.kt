@@ -31,6 +31,7 @@ import com.fiestadecartas.app.ads.Interstitial
 import com.fiestadecartas.app.data.Avatars
 import com.fiestadecartas.app.data.BotSettings
 import com.fiestadecartas.app.data.GameConfig
+import com.fiestadecartas.app.data.MatchTracker
 import com.fiestadecartas.app.data.Prefs
 import com.fiestadecartas.app.data.Profile
 import com.fiestadecartas.app.net.LanSession
@@ -205,7 +206,21 @@ fun NerviosoScreen(lan: Boolean = false, hotseat: Boolean = false) {
         if (game.phase != NerviosoPhase.SLAP) pendingSlap = false
         if (game.phase == NerviosoPhase.OVER && !recorded) {
             recorded = true
-            Prefs.recordResult(game.winner == mySeat)
+            val mode = when {
+                isLan -> "wifi"
+                localHotseat -> "hotseat"
+                else -> "bots"
+            }
+            MatchTracker.record(
+                gameId = "nervioso",
+                won = game.winner == mySeat,
+                score = if (game.winner == mySeat) 1 else 0,
+                mode = mode,
+                players = names.size,
+                seed = seed + restart * 89L,
+                names = names,
+                messages = history.toList()
+            )
             if (game.winner == activeSeat) Feedback.win() else Feedback.error()
             Interstitial.maybeShow(activity)
         }

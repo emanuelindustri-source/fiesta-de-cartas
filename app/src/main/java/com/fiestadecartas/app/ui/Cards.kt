@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import com.fiestadecartas.app.game.FiestaCard
 import com.fiestadecartas.app.game.FiestaColor
 import com.fiestadecartas.app.game.FiestaKind
+import com.fiestadecartas.app.game.domino.DominoTile
 import com.fiestadecartas.app.game.KEMIX_FAMILIES
 import com.fiestadecartas.app.game.KEMIX_COLORS
 import com.fiestadecartas.app.game.KEMIX_EMOJI
@@ -376,10 +377,14 @@ private fun creamColor(): Color = Color(0xFFFFF6E2)
 
 @Composable
 fun SpanishCardBack(width: Dp = 76.dp) {
+    val style = com.fiestadecartas.app.data.Cosmetics.cardBack
+    val navy = Color(style.navy)
+    val navy2 = Color(style.navy2)
+    val gold = Color(style.accent)
     Box(
         Modifier.fillMaxSize()
-            .background(Brush.linearGradient(listOf(CardBackNavy, Color(0xFF1D3557))))
-            .border(1.5.dp, CardGold.copy(alpha = 0.7f), RoundedCornerShape((width.value * 0.10f).dp)),
+            .background(Brush.linearGradient(listOf(navy, navy2)))
+            .border(1.5.dp, gold.copy(alpha = 0.7f), RoundedCornerShape((width.value * 0.10f).dp)),
         contentAlignment = Alignment.Center
     ) {
         Canvas(Modifier.fillMaxSize()) {
@@ -392,18 +397,18 @@ fun SpanishCardBack(width: Dp = 76.dp) {
                         moveTo(x, y - step * 0.26f); lineTo(x + step * 0.26f, y)
                         lineTo(x, y + step * 0.26f); lineTo(x - step * 0.26f, y); close()
                     }
-                    drawPath(p, color = CardGold.copy(alpha = 0.28f), style = Stroke(width = 1.2f))
+                    drawPath(p, color = gold.copy(alpha = 0.28f), style = Stroke(width = 1.2f))
                     y += step
                 }
                 x += step
             }
-            drawCircle(CardGold.copy(alpha = 0.16f), radius = size.width * 0.30f, center = center)
-            drawCircle(CardGold.copy(alpha = 0.55f), radius = size.width * 0.30f, center = center, style = Stroke(width = 2f))
-            drawCircle(CardGold.copy(alpha = 0.35f), radius = size.width * 0.25f, center = center, style = Stroke(width = 1f))
+            drawCircle(gold.copy(alpha = 0.16f), radius = size.width * 0.30f, center = center)
+            drawCircle(gold.copy(alpha = 0.55f), radius = size.width * 0.30f, center = center, style = Stroke(width = 2f))
+            drawCircle(gold.copy(alpha = 0.35f), radius = size.width * 0.25f, center = center, style = Stroke(width = 1f))
         }
         Text(
             "FC",
-            color = CardGold,
+            color = gold,
             fontFamily = FontFamily.Serif,
             fontWeight = FontWeight.Black,
             fontSize = (width.value * 0.26f).sp
@@ -673,6 +678,76 @@ fun KemixCardView(
                 fontSize = (width.value * 0.09f).sp,
                 modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)
             )
+        }
+    }
+}
+
+@Composable
+fun DominoTileView(
+    tile: DominoTile?,
+    modifier: Modifier = Modifier,
+    width: Dp = 58.dp,
+    faceDown: Boolean = false,
+    highlighted: Boolean = false,
+    onClick: (() -> Unit)? = null
+) {
+    val clickMod = if (onClick != null) Modifier.clickable { onClick() } else Modifier
+    val shape = RoundedCornerShape((width.value * 0.12f).dp)
+    Box(
+        modifier.width(width).height(width / 2)
+            .shadow(if (highlighted) 8.dp else 4.dp, shape, clip = false)
+            .clip(shape).then(clickMod)
+    ) {
+        if (faceDown || tile == null) {
+            Box(
+                Modifier.fillMaxSize().background(
+                    Brush.linearGradient(listOf(Color(0xFF101E33), Color(0xFF1D3557)))
+                ).border(1.5.dp, Color(0xFFD8A93B).copy(alpha = 0.65f), shape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("FC", color = Color(0xFFD8A93B), fontWeight = FontWeight.Black, fontSize = (width.value * 0.18f).sp)
+            }
+        } else {
+            Row(
+                Modifier.fillMaxSize()
+                    .background(Brush.verticalGradient(listOf(Color(0xFFFFFBF0), Color(0xFFF1E1C2))))
+                    .border(
+                        if (highlighted) 3.dp else 1.5.dp,
+                        if (highlighted) MaterialTheme.colorScheme.primary else Color(0xFF8C7B5F).copy(alpha = 0.55f),
+                        shape
+                    )
+            ) {
+                DominoHalf(tile.a, Modifier.weight(1f).fillMaxHeight())
+                Box(Modifier.width(1.dp).fillMaxHeight().background(Color(0xFF8C7B5F).copy(alpha = 0.5f)))
+                DominoHalf(tile.b, Modifier.weight(1f).fillMaxHeight())
+            }
+        }
+    }
+}
+
+@Composable
+private fun DominoHalf(value: Int, modifier: Modifier = Modifier) {
+    Canvas(modifier.padding(4.dp)) {
+        val w = size.width
+        val h = size.height
+        val r = minOf(w, h) * 0.072f
+        val x1 = w * 0.28f
+        val x2 = w * 0.72f
+        val y1 = h * 0.25f
+        val y2 = h * 0.5f
+        val y3 = h * 0.75f
+        val positions = when (value) {
+            1 -> listOf(w * 0.5f to y2)
+            2 -> listOf(x1 to y1, x2 to y3)
+            3 -> listOf(x1 to y1, w * 0.5f to y2, x2 to y3)
+            4 -> listOf(x1 to y1, x2 to y1, x1 to y3, x2 to y3)
+            5 -> listOf(x1 to y1, x2 to y1, w * 0.5f to y2, x1 to y3, x2 to y3)
+            6 -> listOf(x1 to y1, x2 to y1, x1 to y2, x2 to y2, x1 to y3, x2 to y3)
+            else -> emptyList()
+        }
+        positions.forEach { (x, y) ->
+            drawCircle(Color(0xFF1D3557), r, Offset(x, y))
+            drawCircle(Color.White.copy(alpha = 0.35f), r * 0.35f, Offset(x - r * 0.25f, y - r * 0.25f))
         }
     }
 }

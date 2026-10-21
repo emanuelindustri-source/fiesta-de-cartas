@@ -106,11 +106,16 @@ private fun AppRoot() {
             is Screen.Settings -> SettingsScreen()
             is Screen.Profile -> com.fiestadecartas.app.ui.ProfileScreen()
             is Screen.Review -> com.fiestadecartas.app.ui.ReviewScreen()
+            is Screen.Progress -> com.fiestadecartas.app.ui.ProgressScreen()
+            is Screen.Shop -> com.fiestadecartas.app.ui.ShopScreen()
+            is Screen.Stats -> com.fiestadecartas.app.ui.StatsScreen()
+            is Screen.Replay -> com.fiestadecartas.app.ui.ReplayScreen()
             is Screen.Game -> when (screen.id) {
                 "caida" -> CaidaScreen(lan = screen.lan, hotseat = screen.hotseat)
                 "ludo" -> LudoScreen(lan = screen.lan, hotseat = screen.hotseat)
                 "fiesta" -> FiestaScreen(lan = screen.lan, hotseat = screen.hotseat)
                 "kemix" -> com.fiestadecartas.app.game.kemix.KemixScreen(lan = screen.lan, hotseat = screen.hotseat)
+                "domino" -> com.fiestadecartas.app.game.domino.DominoScreen(hotseat = screen.hotseat)
                 else -> com.fiestadecartas.app.game.nervioso.NerviosoScreen(lan = screen.lan, hotseat = screen.hotseat)
             }
             is Screen.Lobby -> LobbyScreen(screen.game)

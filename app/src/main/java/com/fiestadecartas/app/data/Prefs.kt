@@ -80,5 +80,6 @@ object Prefs {
         played = 0
         sp.edit().putInt("wins", 0).putInt("played", 0).apply()
         Profile.reset()
+        GameStats.clear()
     }
 }

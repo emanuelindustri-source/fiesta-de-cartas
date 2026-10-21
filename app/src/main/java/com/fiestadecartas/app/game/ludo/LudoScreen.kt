@@ -41,6 +41,7 @@ import com.fiestadecartas.app.ads.Interstitial
 import com.fiestadecartas.app.data.Avatars
 import com.fiestadecartas.app.data.BotSettings
 import com.fiestadecartas.app.data.GameConfig
+import com.fiestadecartas.app.data.MatchTracker
 import com.fiestadecartas.app.data.Prefs
 import com.fiestadecartas.app.data.Profile
 import com.fiestadecartas.app.net.LanSession
@@ -173,7 +174,21 @@ fun LudoScreen(lan: Boolean = false, hotseat: Boolean = false) {
     LaunchedEffect(game.phase) {
         if (game.phase == LudoPhase.OVER && !recorded) {
             recorded = true
-            Prefs.recordResult(game.winner == mySeat)
+            val mode = when {
+                isLan -> "wifi"
+                localHotseat -> "hotseat"
+                else -> "bots"
+            }
+            MatchTracker.record(
+                gameId = "ludo",
+                won = game.winner == mySeat,
+                score = game.homeCount(mySeat),
+                mode = mode,
+                players = names.size,
+                seed = seed + restart * 131L,
+                names = names,
+                messages = history.toList()
+            )
             Feedback.win()
             Interstitial.maybeShow(activity)
         }

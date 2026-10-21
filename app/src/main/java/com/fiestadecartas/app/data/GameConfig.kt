@@ -26,6 +26,10 @@ object GameConfig {
         private set
     var nerviosoStartCards by mutableIntStateOf(7)
         private set
+    var dominoPlayers by mutableIntStateOf(4)
+        private set
+    var dominoTarget by mutableIntStateOf(100)
+        private set
 
     fun init(context: Context) {
         if (::sp.isInitialized) return
@@ -36,6 +40,8 @@ object GameConfig {
         fiestaTarget = sp.getInt("fiesta_target", 300).let { if (it in listOf(200, 300, 500)) it else 300 }
         ludoHomeTokens = sp.getInt("ludo_home", 4).coerceIn(2, 4)
         nerviosoStartCards = sp.getInt("nervioso_cards", 7).coerceIn(3, 9)
+        dominoPlayers = sp.getInt("domino_players", 4).coerceIn(2, 4)
+        dominoTarget = sp.getInt("domino_target", 100).let { if (it in listOf(50, 100, 150, 200)) it else 100 }
     }
 
     fun updateCaidaPlayers(value: Int) {
@@ -70,11 +76,23 @@ object GameConfig {
         sp.edit().putInt("nervioso_cards", nerviosoStartCards).apply()
     }
 
+    fun updateDominoPlayers(value: Int) {
+        dominoPlayers = value.coerceIn(2, 4)
+        sp.edit().putInt("domino_players", dominoPlayers).apply()
+    }
+
+    fun updateDominoTarget(value: Int) {
+        if (value !in listOf(50, 100, 150, 200)) return
+        dominoTarget = value
+        sp.edit().putInt("domino_target", value).apply()
+    }
+
     fun playersFor(gameId: String): Int = when (gameId) {
         "caida" -> caidaPlayers
         "fiesta" -> fiestaPlayers
         "ludo" -> 4
         "kemix" -> 4
+        "domino" -> dominoPlayers
         else -> 4
     }
 }

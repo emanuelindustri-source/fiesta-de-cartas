@@ -39,6 +39,8 @@ import com.fiestadecartas.app.Screen
 import com.fiestadecartas.app.ads.Interstitial
 import com.fiestadecartas.app.data.Avatars
 import com.fiestadecartas.app.data.BotSettings
+import com.fiestadecartas.app.data.Cosmetics
+import com.fiestadecartas.app.data.MatchTracker
 import com.fiestadecartas.app.data.GameConfig
 import com.fiestadecartas.app.data.Prefs
 import com.fiestadecartas.app.data.Profile
@@ -158,7 +160,21 @@ fun CaidaScreen(lan: Boolean = false, hotseat: Boolean = false) {
     LaunchedEffect(game.phase) {
         if (game.phase == CaidaPhase.OVER && !recorded) {
             recorded = true
-            Prefs.recordResult(game.winner == mySeat)
+            val mode = when {
+                isLan -> "wifi"
+                localHotseat -> "hotseat"
+                else -> "bots"
+            }
+            MatchTracker.record(
+                gameId = "caida",
+                won = game.winner == mySeat,
+                score = game.points.getOrElse(mySeat) { 0 },
+                mode = mode,
+                players = names.size,
+                seed = seed + restart * 97L,
+                names = names,
+                messages = history.toList()
+            )
             Feedback.win()
             Interstitial.maybeShow(activity)
         }
@@ -305,8 +321,8 @@ fun CaidaScreen(lan: Boolean = false, hotseat: Boolean = false) {
             // Table
             Surface(
                 shape = RoundedCornerShape(26.dp),
-                color = Color(0xFF0E5A3A).copy(alpha = 0.55f),
-                border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFFD8A93B).copy(alpha = 0.35f)),
+                color = Color(Cosmetics.felt.color).copy(alpha = 0.78f),
+                border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(Cosmetics.felt.accent).copy(alpha = 0.45f)),
                 modifier = Modifier.fillMaxWidth().height(190.dp).offset(x = shake.value.dp)
             ) {
                 Box(Modifier.fillMaxSize().padding(12.dp)) {

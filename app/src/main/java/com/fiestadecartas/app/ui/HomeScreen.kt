@@ -69,7 +69,8 @@ val GAMES = listOf(
     GameEntry("ludo", R.string.ludo_name, R.string.ludo_desc, "🎲", Color(0xFF2A9D8F), true, R.string.rules_ludo),
     GameEntry("fiesta", R.string.fiesta_name, R.string.fiesta_desc, "🎨", Color(0xFFFFB703), true, R.string.rules_fiesta),
     GameEntry("kemix", R.string.kemix_name, R.string.kemix_desc, "🪷", Color(0xFFFF6B9D), true, R.string.rules_kemix),
-    GameEntry("nervioso", R.string.nervioso_name, R.string.nervioso_desc, "✋", Color(0xFF8E7DBE), true, R.string.rules_nervioso)
+    GameEntry("nervioso", R.string.nervioso_name, R.string.nervioso_desc, "✋", Color(0xFF8E7DBE), true, R.string.rules_nervioso),
+    GameEntry("domino", R.string.domino_name, R.string.domino_desc, "🁫", Color(0xFFC9962B), false, R.string.rules_domino)
 )
 
 @Composable
@@ -298,6 +299,20 @@ private fun MatchSetupDialog(
                             selected = GameConfig.nerviosoStartCards,
                             onSelect = { GameConfig.updateNerviosoStartCards(it) }
                         )
+                        "domino" -> {
+                            RuleChips(
+                                label = stringResource(R.string.players),
+                                options = listOf(2, 3, 4),
+                                selected = GameConfig.dominoPlayers,
+                                onSelect = { GameConfig.updateDominoPlayers(it) }
+                            )
+                            RuleChips(
+                                label = stringResource(R.string.target_points),
+                                options = listOf(50, 100, 150, 200),
+                                selected = GameConfig.dominoTarget,
+                                onSelect = { GameConfig.updateDominoTarget(it) }
+                            )
+                        }
                         else -> Text(
                             "Kemix · 6 parejas · 4 jugadores",
                             style = MaterialTheme.typography.bodyMedium,
@@ -485,6 +500,7 @@ private fun GameCard(game: GameEntry, modifier: Modifier = Modifier, onPlay: () 
         "ludo" -> listOf(Color(0xFF2A9D8F), Color(0xFF3A86FF))
         "fiesta" -> listOf(Color(0xFFFFB703), Color(0xFFEF476F))
         "kemix" -> listOf(Color(0xFFFF6B9D), Color(0xFF8E7DBE))
+        "domino" -> listOf(Color(0xFFC9962B), Color(0xFF2A6F3E))
         else -> listOf(Color(0xFF8E7DBE), Color(0xFF6FD8D0))
     }
     Surface(
@@ -576,12 +592,19 @@ fun GameIllustration(id: String, modifier: Modifier = Modifier) {
                 FiestaCardView(com.fiestadecartas.app.game.FiestaCard(2, com.fiestadecartas.app.game.FiestaColor.RED, com.fiestadecartas.app.game.FiestaKind.DRAW2), width = 30.dp)
             }
         }
-        "kemix" -> Canvas(modifier.padding(9.dp)) {
-            val emojis = listOf("☀️", "🌙", "⭐", "🌸")
+        "kemix" -> Canvas(modifier.padding(9.dp)) {            val emojis = listOf("☀️", "🌙", "⭐", "🌸")
             // Simple decorative diamonds; the emoji layer is added below in the card list.
             val s = size.minDimension / 2.6f
             listOf(0.2f to 0.2f, 0.75f to 0.2f, 0.2f to 0.75f, 0.75f to 0.75f).forEachIndexed { i, (x, y) ->
                 drawRoundRect(Color.White.copy(alpha = 0.22f), Offset(size.width * x - s / 2, size.height * y - s / 2), Size(s, s), androidx.compose.ui.geometry.CornerRadius(6f))
+            }
+        }
+        "domino" -> Box(modifier, contentAlignment = Alignment.Center) {
+            Box(Modifier.offset(x = (-5).dp, y = 2.dp).rotate(-12f)) {
+                DominoTileView(com.fiestadecartas.app.game.domino.DominoTile(3, 5), width = 32.dp)
+            }
+            Box(Modifier.offset(x = 9.dp, y = (-3).dp).rotate(9f)) {
+                DominoTileView(com.fiestadecartas.app.game.domino.DominoTile(6, 6), width = 32.dp)
             }
         }
         else -> Box(modifier, contentAlignment = Alignment.Center) {

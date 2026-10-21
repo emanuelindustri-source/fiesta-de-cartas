@@ -4,6 +4,25 @@ All notable changes to Fiesta de Cartas are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 semantic versioning.
 
+## [1.4.0] — 2026-10-21
+
+### Added
+
+- Sixth game: Venezuelan **Dominó** with 2–4 players, boneyard, blocked table,
+  target scores and three bot difficulties.
+- Achievements, three daily missions and a cosmetic shop.
+- Coins earned only by playing; unlockable card backs, table felts and premium avatars.
+- Per-game statistics and the last 20 matches saved in the profile.
+- Narrated replay for saved matches with seed, mode, score and full play log.
+- Daily mission and achievement claim screens with progress bars.
+- The last five plays are shown under the table/deck, with the full history one tap away.
+
+### Changed
+
+- Player profile now shows coins and shortcuts to Shop, Statistics and Achievements.
+- Felt selection applies to Caída and Fiesta de Colores; card backs apply everywhere.
+- Stats reset also clears saved matches.
+
 ## [1.3.1] — 2026-10-21
 
 ### Fixed

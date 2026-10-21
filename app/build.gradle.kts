@@ -32,8 +32,8 @@ android {
         applicationId = "com.fiestadecartas.app"
         minSdk = 24
         targetSdk = 34
-        versionCode = 5
-        versionName = "1.3.1"
+        versionCode = 6
+        versionName = "1.4.0"
         resourceConfigurations += listOf("es", "en", "pt", "it", "zh")
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "HONEYGAIN_API_KEY", "\"${honeygainApiKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
