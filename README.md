@@ -11,6 +11,12 @@ App Android nativa de juegos de cartas y tablero con temática venezolana, arte 
 - **Documentación legal:** [Privacidad](https://emanuelindustri-source.github.io/fiesta-de-cartas/privacy.html) · [Términos](https://emanuelindustri-source.github.io/fiesta-de-cartas/terms.html)
 - **Contacto:** emanuel.industri@gmail.com
 
+<p align="center">
+  <img src="site/assets/screens/home.jpg" alt="Pantalla de inicio" width="220" />
+  <img src="site/assets/screens/caida.jpg" alt="Mesa de Caída" width="220" />
+  <img src="site/assets/screens/profile.jpg" alt="Perfil y avatares" width="220" />
+</p>
+
 ## Juegos incluidos
 
 | Juego | Modo | Descripción |
@@ -44,7 +50,7 @@ También incluye:
 - Versión: `1.1.0` (versionCode 2)
 - Compatible con Android 7.0 o superior (API 24+); probada en Android 14 (API 34).
 - Firma: certificado de producción `CN=Fiesta de Cartas`, creado con el keystore `fiesta-release.jks`.
-- SHA-256 del APK: `413391F90252EC52D12443C7B3F449DFFE97ED8B8E68DCB75A3DAB4C0BF2CCEE`
+- SHA-256 del APK: `8759ECC39BF2135EDE11A268B471E8027F58C75EC903FB23A6ACD14B18524C93`
 - Tamaño: 34.735.018 bytes (34,7 MB).
 
 ### Instalar en un teléfono
@@ -162,6 +168,9 @@ Sin esos cambios, la app seguirá mostrando anuncios de prueba y no habrá ingre
 > en capturas ni en el chat. Crea los bloques desde AdMob con la cuenta iniciada en
 > el navegador y pega solo los IDs públicos. Si la contraseña se compartió, cámbiala
 > y activa la verificación en dos pasos.
+
+Para comparar AdMob con AppLovin MAX, Unity LevelPlay, Honeygain y otras opciones,
+consulta [`docs/MONETIZATION.md`](docs/MONETIZATION.md).
 
 ## Estructura del repositorio
 
