@@ -94,5 +94,5 @@ dependencies {
     implementation("com.google.guava:guava:32.1.3-android")
     implementation("androidx.palette:palette-ktx:1.0.0")
 
-    implementation("com.google.android.gms:play-services-ads:23.1.0")
+    implementation("com.google.android.gms:play-services-ads:25.5.0")
 }
