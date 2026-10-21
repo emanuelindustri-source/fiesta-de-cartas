@@ -29,6 +29,8 @@ import com.fiestadecartas.app.game.kemix.KemixScreen
 import com.fiestadecartas.app.game.ludo.LudoScreen
 import com.fiestadecartas.app.game.nervioso.NerviosoScreen
 import com.fiestadecartas.app.net.LanSession
+import com.fiestadecartas.app.ui.Soundscape
+import com.fiestadecartas.app.ui.theme.Festival
 import com.fiestadecartas.app.ui.AboutScreen
 import com.fiestadecartas.app.ui.HomeScreen
 import com.fiestadecartas.app.ui.LegendsScreen
@@ -53,7 +55,19 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         com.fiestadecartas.app.data.HoneygainSupport.startIfOptedIn()
+        Soundscape.sync(this, currentFestival())
     }
+
+    override fun onPause() {
+        Soundscape.stop()
+        com.fiestadecartas.app.data.HoneygainSupport.stop()
+        super.onPause()
+    }
+
+    private fun currentFestival(): Festival =
+        Prefs.manualFestival.let { key ->
+            if (key == "auto") Festival.current() else Festival.fromKey(key) ?: Festival.current()
+        }
 }
 
 @Composable
