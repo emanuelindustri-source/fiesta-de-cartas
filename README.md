@@ -55,8 +55,8 @@ También incluye:
 - Versión: `1.2.0` (versionCode 3)
 - Compatible con Android 7.0 o superior (API 24+); probada en Android 14 (API 34).
 - Firma: certificado de producción `CN=Fiesta de Cartas`, creado con el keystore `fiesta-release.jks`.
-- SHA-256 del APK: `A84F9008F0A9672B6E6A9BD428263FC47839BD994F7744518E6F09657E107D2F`
-- Tamaño: 37.151.678 bytes (37,2 MB).
+- SHA-256 del APK: `11337542D8BCA88CA6C614B489BF9A7346D6F735AEAE2377F7E9E655C9BBF11F`
+- Tamaño: 37.135.294 bytes (37,1 MB).
 
 ### Instalar en un teléfono
 
@@ -215,6 +215,7 @@ FiestaDeCartas/
 │   ├── terms.html
 │   └── assets/              # Logo, capturas, imagen Open Graph
 ├── docs/
+│   ├── ADMOB.md             # Activar los IDs reales de AdMob
 │   ├── ARCHITECTURE.md      # Capas, protocolo LAN y decisiones técnicas
 │   ├── HONEYGAIN.md         # SDK opcional de ancho de banda
 │   ├── MONETIZATION.md      # Anuncios, tiendas, Honeygain y pagos
