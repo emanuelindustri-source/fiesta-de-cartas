@@ -188,6 +188,8 @@ FiestaDeCartas/
 │   ├── terms.html
 │   └── assets/              # Logo, capturas, imagen Open Graph
 ├── docs/
+│   ├── ARCHITECTURE.md      # Capas, protocolo LAN y decisiones técnicas
+│   ├── MONETIZATION.md      # Anuncios, tiendas, Honeygain y pagos
 │   └── ONLINE_ROADMAP.md    # Diseño futuro de torneos y dinero real
 ├── .github/workflows/       # CI Android, release firmada y Pages
 ├── fiesta-release.jks       # NO se sube (ignorado)
