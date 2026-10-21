@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fiesta de Cartas — Juegos de cartas venezolanos para Android</title>
+  <meta name="description" content="Caída, Ludo, Fiesta de Colores, Kemix y Nervioso. Una app Android gratuita con baraja española, 5 idiomas, multijugador por WiFi y temporadas venezolanas." />
+  <meta name="theme-color" content="#070d16" />
+  <link rel="canonical" href="https://emanuelindustri-source.github.io/fiesta-de-cartas/" />
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" />
+  <link rel="stylesheet" href="./styles.css" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Fiesta de Cartas — la fiesta se juega en tu mesa" />
+  <meta property="og:description" content="Cinco juegos, una baraja y todas las ganas de celebrar. Descarga la app Android gratis." />
+  <meta property="og:url" content="https://emanuelindustri-source.github.io/fiesta-de-cartas/" />
+  <meta property="og:image" content="https://emanuelindustri-source.github.io/fiesta-de-cartas/assets/og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Fiesta de Cartas" />
+  <meta name="twitter:description" content="Caída, Ludo, Fiesta de Colores, Kemix y Nervioso. Gratis para Android." />
+  <meta name="twitter:image" content="https://emanuelindustri-source.github.io/fiesta-de-cartas/assets/og.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Fiesta de Cartas",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Android 7.0+",
+    "softwareVersion": "1.1.0",
+    "inLanguage": ["es", "en", "pt", "it", "zh"],
+    "description": "Juegos de cartas y tablero con baraja española, arte original y multijugador por WiFi local.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "Emanuel", "email": "emanuel.industri@gmail.com" },
+    "downloadUrl": "https://github.com/emanuelindustri-source/fiesta-de-cartas/releases/latest/download/app-release.apk"
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="skip">Saltar al contenido</a>
+
+  <header class="site-header" id="top">
+    <div class="wrap header-inner">
+      <a class="brand" href="./" aria-label="Fiesta de Cartas">
+        <img src="./assets/logo.svg" alt="" width="42" height="42" />
+        <span>Fiesta de Cartas</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="site-nav" aria-label="Principal">
+        <a href="#juegos" data-i18n="navGames">Juegos</a>
+        <a href="#experiencia" data-i18n="navExperience">Experiencia</a>
+        <a href="#descargar" data-i18n="navDownload">Descargar</a>
+        <a href="./privacy.html" data-i18n="navPrivacy">Privacidad</a>
+        <a class="nav-github" href="https://github.com/emanuelindustri-source/fiesta-de-cartas" rel="noopener" target="_blank">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.55v-2.15c-3.2.7-3.88-1.36-3.88-1.36-.53-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.35.96.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .3.2.66.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"/></svg>
+          GitHub
+        </a>
+        <button class="lang-toggle" type="button" aria-label="Cambiar idioma a inglés">EN</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy reveal">
+          <p class="eyebrow"><span class="dot"></span><span data-i18n="heroEyebrow">Hecho en Venezuela · Android</span></p>
+          <h1 data-i18n="heroTitle">La fiesta se juega en tu mesa.</h1>
+          <p class="lead" data-i18n="heroLead">Cinco juegos de cartas y tablero, una baraja española y todas las ganas de celebrar. Juega contra bots o invita a tus amigos por WiFi, sin internet y sin cuentas.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://github.com/emanuelindustri-source/fiesta-de-cartas/releases/latest/download/app-release.apk" data-i18n="downloadApk">Descargar APK</a>
+            <a class="btn btn-ghost" href="#juegos" data-i18n="seeGames">Ver los juegos</a>
+          </div>
+          <ul class="hero-meta">
+            <li data-i18n="metaFree">Gratis</li>
+            <li data-i18n="metaAndroid">Android 7+</li>
+            <li data-i18n="metaLangs">5 idiomas</li>
+            <li data-i18n="metaNoAccount">Sin cuentas</li>
+          </ul>
+        </div>
+
+        <div class="hero-art reveal" aria-hidden="true">
+          <div class="glow glow-gold"></div>
+          <div class="glow glow-teal"></div>
+          <div class="phone">
+            <div class="phone-notch"></div>
+            <img src="./assets/screens/home.jpg" alt="" width="760" height="1583" loading="eager" />
+          </div>
+          <div class="float-card card-caida">
+            <span class="suit">🃏</span>
+            <strong>Caída</strong>
+            <small>24 · 30 · 50</small>
+          </div>
+          <div class="float-card card-ludo">
+            <span class="die">🎲</span>
+            <strong>Ludo</strong>
+            <small>4 fichas</small>
+          </div>
+          <div class="float-card card-fiesta">
+            <span class="suit">🎨</span>
+            <strong>Fiesta</strong>
+            <small>+4</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats wrap" aria-label="Datos rápidos">
+      <div><strong>5</strong><span data-i18n="statGames">juegos</span></div>
+      <div><strong>5</strong><span data-i18n="statLangs">idiomas</span></div>
+      <div><strong>100</strong><span data-i18n="statLevels">niveles</span></div>
+      <div><strong>10</strong><span data-i18n="statAvatars">avatares</span></div>
+      <div><strong>WiFi</strong><span data-i18n="statLan">sin internet</span></div>
+    </section>
+
+    <section class="section wrap" id="juegos">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="dot"></span><span data-i18n="gamesEyebrow">Cinco formas de celebrar</span></p>
+        <h2 data-i18n="gamesTitle">Elige tu mesa</h2>
+        <p class="section-lead" data-i18n="gamesLead">Cada juego tiene su ritmo, sus reglas y su propio arte. Todos comparten la misma baraja, la misma fiesta y la misma promesa: partidas cortas, fáciles de aprender y difíciles de dejar.</p>
+      </div>
+      <div class="games-grid">
+        <article class="game-card reveal">
+          <div class="game-icon icon-caida">🃏</div>
+          <h3>Caída</h3>
+          <p data-i18n="gameCaida">El clásico venezolano de cantos y astucia. Canta, captura y llega a los puntos antes que nadie.</p>
+          <span class="tag" data-i18n="tagBotsWifi">Bots + WiFi</span>
+        </article>
+        <article class="game-card reveal">
+          <div class="game-icon icon-ludo">🎲</div>
+          <h3>Ludo</h3>
+          <p data-i18n="gameLudo">Cuatro fichas, un dado que rebota y una carrera hasta el centro. Captura, avanza y celebra.</p>
+          <span class="tag" data-i18n="tagBotsWifi">Bots + WiFi</span>
+        </article>
+        <article class="game-card reveal">
+          <div class="game-icon icon-fiesta">🎨</div>
+          <h3>Fiesta de Colores</h3>
+          <p data-i18n="gameFiesta">Combina colores y números, usa comodines y grita ¡Fiesta! cuando te quedes sin cartas.</p>
+          <span class="tag" data-i18n="tagBotsWifi">Bots + WiFi</span>
+        </article>
+        <article class="game-card reveal">
+          <div class="game-icon icon-kemix">🪷</div>
+          <h3>Kemix</h3>
+          <p data-i18n="gameKemix">Memoria y reflejos. Encuentra las parejas de familias venezolanas antes que los bots.</p>
+          <span class="tag" data-i18n="tagBots">Bots</span>
+        </article>
+        <article class="game-card reveal">
+          <div class="game-icon icon-nervioso">✋</div>
+          <h3>Nervioso</h3>
+          <p data-i18n="gameNervioso">Descarta, canta un número y toca la pila primero. El último en reaccionar se lleva las cartas.</p>
+          <span class="tag" data-i18n="tagBots">Bots</span>
+        </article>
+        <article class="game-card game-card-cta reveal">
+          <h3 data-i18n="moreSoon">¿Y lo que viene?</h3>
+          <p data-i18n="moreSoonText">Torneos, más avatares y una mesa online regulada. El camino está documentado en el repositorio.</p>
+          <a class="text-link" href="https://github.com/emanuelindustri-source/fiesta-de-cartas/blob/main/docs/ONLINE_ROADMAP.md" rel="noopener" target="_blank" data-i18n="readRoadmap">Leer la hoja de ruta</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="section wrap experience" id="experiencia">
+      <div class="experience-art reveal">
+        <div class="phone phone-small">
+          <div class="phone-notch"></div>
+          <img src="./assets/screens/caida.jpg" alt="Mesa de Caída con cartas y avatares" width="760" height="1583" loading="lazy" />
+        </div>
+        <div class="canto-badge" aria-hidden="true"><span data-i18n="canto">¡CAÍDA!</span></div>
+      </div>
+      <div class="experience-copy reveal">
+        <p class="eyebrow"><span class="dot"></span><span data-i18n="expEyebrow">No es solo jugar</span></p>
+        <h2 data-i18n="expTitle">Se siente como una mesa de verdad</h2>
+        <p class="section-lead" data-i18n="expLead">Reparte carta por carta, desliza la tuya hacia la mesa y siente el temblor cuando alguien canta. Los avatares reaccionan, la mesa vibra y cada partida tiene su propio ritmo.</p>
+        <ul class="feature-list">
+          <li><span>🃏</span><div><strong data-i18n="featDeal">Reparto animado</strong><p data-i18n="featDealText">Las cartas salen del mazo y vuelan a la mesa. Tú también puedes lanzar la tuya.</p></div></li>
+          <li><span>📳</span><div><strong data-i18n="featShake">Mesa que tiembla</strong><p data-i18n="featShakeText">Un canto hace vibrar la mesa; una caída la sacude con fuerza y sonido.</p></div></li>
+          <li><span>🎭</span><div><strong data-i18n="featAvatars">Avatares con gesto</strong><p data-i18n="featAvatarsText">Elige entre diez personajes de la fauna venezolana y míralos celebrar o sorprenderse.</p></div></li>
+          <li><span>📡</span><div><strong data-i18n="featWifi">WiFi sin internet</strong><p data-i18n="featWifiText">Crea una sala, comparte el QR y juega con amigos en la misma red.</p></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section wrap" id="perfil">
+      <div class="split">
+        <div class="split-copy reveal">
+          <p class="eyebrow"><span class="dot"></span><span data-i18n="profileEyebrow">Tu espacio</span></p>
+          <h2 data-i18n="profileTitle">Sube de nivel, elige tu avatar</h2>
+          <p class="section-lead" data-i18n="profileLead">Cada partida suma puntos de fiesta. Los niveles van del 1 al 100 y la curva está pensada para durar meses. Elige tu personaje, personaliza tu mesa y vuelve cuando quieras: todo se guarda en tu teléfono.</p>
+          <div class="chips">
+            <span class="chip" data-i18n="chipLevels">Niveles 1–100</span>
+            <span class="chip" data-i18n="chipAvatars">10 avatares</span>
+            <span class="chip" data-i18n="chipRules">Reglas configurables</span>
+            <span class="chip" data-i18n="chipSeasons">Temporadas automáticas</span>
+          </div>
+        </div>
+        <div class="split-art reveal">
+          <div class="phone phone-small">
+            <div class="phone-notch"></div>
+            <img src="./assets/screens/profile.jpg" alt="Perfil con nivel y avatares" width="760" height="1583" loading="lazy" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="download" id="descargar">
+      <div class="wrap download-inner reveal">
+        <div>
+          <p class="eyebrow eyebrow-light"><span class="dot"></span><span data-i18n="downloadEyebrow">Listo para instalar</span></p>
+          <h2 data-i18n="downloadTitle">Lleva la fiesta en el bolsillo</h2>
+          <p class="section-lead" data-i18n="downloadLead">Descarga la APK firmada, ábrela en tu Android y empieza a jugar. No necesitas cuenta ni conexión para jugar contra los bots.</p>
+          <div class="download-actions">
+            <a class="btn btn-primary" href="https://github.com/emanuelindustri-source/fiesta-de-cartas/releases/latest/download/app-release.apk" data-i18n="downloadApk">Descargar APK</a>
+            <a class="btn btn-ghost-light" href="https://github.com/emanuelindustri-source/fiesta-de-cartas/releases" rel="noopener" target="_blank" data-i18n="allReleases">Ver versiones</a>
+          </div>
+          <p class="fineprint" data-i18n="installNote">Android puede pedir permiso para instalar apps de esta fuente. Es normal fuera de Google Play.</p>
+        </div>
+        <div class="download-card">
+          <div class="download-row"><span data-i18n="version">Versión</span><strong>1.1.0</strong></div>
+          <div class="download-row"><span data-i18n="size">Tamaño</span><strong>34,7 MB</strong></div>
+          <div class="download-row"><span data-i18n="minAndroid">Android mínimo</span><strong>7.0</strong></div>
+          <div class="download-row"><span data-i18n="package">Paquete</span><code>com.fiestadecartas.app</code></div>
+          <div class="hash">
+            <span>SHA-256</span>
+            <code>413391F90252EC52D12443C7B3F449DFFE97ED8B8E68DCB75A3DAB4C0BF2CCEE</code>
+          </div>
+          <p class="fineprint" data-i18n="verifyNote">Verifica el hash antes de instalar si descargas desde otro espejo.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="privacidad">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="dot"></span><span data-i18n="privacyEyebrow">Transparencia</span></p>
+        <h2 data-i18n="privacyTitle">Privacidad sin letra pequeña</h2>
+        <p class="section-lead" data-i18n="privacyLead">La app no crea cuentas ni sube tus partidas. La cámara solo lee códigos QR, el WiFi local solo transporta la partida y los anuncios se sirven con consentimiento.</p>
+      </div>
+      <div class="privacy-grid">
+        <a class="privacy-card reveal" href="./privacy.html"><span>🔐</span><h3 data-i18n="privacyPolicy">Política de privacidad</h3><p data-i18n="privacyPolicyText">Qué datos toca la app, permisos y terceros.</p></a>
+        <a class="privacy-card reveal" href="./terms.html"><span>📜</span><h3 data-i18n="terms">Términos de uso</h3><p data-i18n="termsText">Licencia, fichas virtuales y uso responsable.</p></a>
+        <a class="privacy-card reveal" href="mailto:emanuel.industri@gmail.com"><span>✉️</span><h3 data-i18n="contact">Contacto</h3><p data-i18n="contactText">Ideas, errores o alianzas: escríbenos.</p></a>
+      </div>
+    </section>
+
+    <section class="section wrap faq">
+      <div class="section-head reveal">
+        <p class="eyebrow"><span class="dot"></span><span data-i18n="faqEyebrow">Antes de jugar</span></p>
+        <h2 data-i18n="faqTitle">Preguntas frecuentes</h2>
+      </div>
+      <div class="faq-list reveal">
+        <details>
+          <summary data-i18n="faq1q">¿Es gratis?</summary>
+          <p data-i18n="faq1a">Sí. La app es gratuita e incluye anuncios. No hay compras obligatorias ni suscripciones.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq2q">¿Necesito internet para jugar?</summary>
+          <p data-i18n="faq2a">No. Los bots funcionan sin conexión. El modo con amigos usa WiFi local: ambos teléfonos deben estar en la misma red o en el punto de acceso del anfitrión.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq3q">¿Puedo jugar con dinero real?</summary>
+          <p data-i18n="faq3a">No. Las fichas son de práctica y no tienen valor monetario. Cualquier modo con dinero real requeriría licencia, verificación de edad y cumplimiento legal; está documentado como trabajo futuro, no está activo.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq4q">¿En qué idiomas está?</summary>
+          <p data-i18n="faq4a">Español, inglés, portugués, italiano y chino. Detecta el idioma del teléfono y puedes cambiarlo en Ajustes.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq5q">¿Funciona en tablet o TV?</summary>
+          <p data-i18n="faq5a">Sí. La interfaz se adapta a teléfonos, tablets, dispositivos de doble pantalla y televisores; en TV puedes navegar con el mando.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="contact-strip">
+      <div class="wrap contact-inner reveal">
+        <div>
+          <p class="eyebrow eyebrow-light"><span class="dot"></span><span data-i18n="contactEyebrow">Hablemos</span></p>
+          <h2 data-i18n="contactTitle">¿Tienes una idea para la fiesta?</h2>
+          <p data-i18n="contactLead">Escríbenos, cuéntanos qué juego falta o comparte la app con tu mesa.</p>
+        </div>
+        <a class="btn btn-primary" href="mailto:emanuel.industri@gmail.com" data-i18n="writeUs">Escribir al creador</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <img src="./assets/logo.svg" alt="" width="34" height="34" />
+        <span>Fiesta de Cartas</span>
+      </div>
+      <p class="footer-copy">© <span id="year">2026</span> Emanuel · <span data-i18n="footerMade">Hecho con cariño para Venezuela y el mundo</span></p>
+      <nav aria-label="Footer">
+        <a href="./privacy.html" data-i18n="navPrivacy">Privacidad</a>
+        <a href="./terms.html" data-i18n="terms">Términos</a>
+        <a href="https://github.com/emanuelindustri-source/fiesta-de-cartas" rel="noopener" target="_blank">GitHub</a>
+        <a href="mailto:emanuel.industri@gmail.com" data-i18n="contact">Contacto</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>

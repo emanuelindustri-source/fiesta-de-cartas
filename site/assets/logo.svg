@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Fiesta de Cartas">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b3048"/>
+      <stop offset="1" stop-color="#0a1421"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffd166"/>
+      <stop offset="1" stop-color="#ffb703"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2ec4b6"/>
+      <stop offset="1" stop-color="#1b8f86"/>
+    </linearGradient>
+    <linearGradient id="coral" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff8a9a"/>
+      <stop offset="1" stop-color="#e63946"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+  <rect x="8" y="18" width="20" height="30" rx="4" fill="url(#teal)" transform="rotate(-14 18 33)"/>
+  <rect x="36" y="18" width="20" height="30" rx="4" fill="url(#coral)" transform="rotate(14 46 33)"/>
+  <rect x="21" y="12" width="22" height="38" rx="4.5" fill="url(#gold)"/>
+  <rect x="25" y="16" width="14" height="30" rx="2.5" fill="#fff6e2"/>
+  <circle cx="32" cy="29" r="5.2" fill="none" stroke="#c9962b" stroke-width="1.4"/>
+  <path d="M32 20.5l2.1 6.4h6.7l-5.4 4 2 6.5-5.4-4-5.4 4 2-6.5-5.4-4h6.7z" fill="#c9962b" opacity=".35"/>
+</svg>

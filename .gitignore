@@ -1,0 +1,39 @@
+# Android / Gradle
+.gradle/
+build/
+**/build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+lint-results*.html
+lint-results*.xml
+
+# Signing secrets — never commit these
+keystore.properties
+*.jks
+*.keystore
+.env
+.env.*
+
+# IDE / editors
+.idea/
+*.iml
+.vscode/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Crash / debug logs
+hs_err_pid*
+replay_pid*
+*.hprof
