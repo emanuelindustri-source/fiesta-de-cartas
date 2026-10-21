@@ -59,7 +59,7 @@ También incluye:
 - Versión: `1.3.1` (versionCode 5)
 - Compatible con Android 7.0 o superior (API 24+); probada en Android 14 (API 34).
 - Firma: certificado de producción `CN=Fiesta de Cartas`, creado con el keystore `fiesta-release.jks`.
-- SHA-256 del APK: `62394A0D39DD36DD8AE44FD27A91559C76B7F5FACF0E24FAB611D5E46B1D5D3C`
+- SHA-256 del APK: `FC934B5F4213A4C3C0DA3E97D839B5E12303259BD90548CF83D120F88433CE0B`
 - Tamaño: 35.370.398 bytes (35,4 MB).
 
 ### Instalar en un teléfono
