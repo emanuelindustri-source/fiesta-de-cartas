@@ -9,6 +9,8 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
@@ -91,6 +93,12 @@ fun FiestaTheme(content: @Composable () -> Unit) {
         labelSmall = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 11.sp, letterSpacing = 1.sp)
     )
     val view = LocalView.current
+    LaunchedEffect(festival, Prefs.sound) {
+        com.fiestadecartas.app.ui.Soundscape.sync(context, festival)
+    }
+    DisposableEffect(Unit) {
+        onDispose { com.fiestadecartas.app.ui.Soundscape.stop() }
+    }
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as? Activity)?.window ?: return@SideEffect

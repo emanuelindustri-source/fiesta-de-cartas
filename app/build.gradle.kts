@@ -11,6 +11,14 @@ val keystoreProps = Properties().apply {
     if (keystorePropsFile.exists()) keystorePropsFile.inputStream().use { load(it) }
 }
 
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+
+val honeygainApiKey: String =
+    (localProps.getProperty("honeygain.apiKey") ?: System.getenv("HONEYGAIN_API_KEY") ?: "").trim()
+
 fun signingValue(key: String, env: String): String? =
     keystoreProps.getProperty(key)?.takeIf { it.isNotBlank() } ?: System.getenv(env)?.takeIf { it.isNotBlank() }
 
@@ -24,10 +32,11 @@ android {
         applicationId = "com.fiestadecartas.app"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.2.0"
         resourceConfigurations += listOf("es", "en", "pt", "it", "zh")
         vectorDrawables.useSupportLibrary = true
+        buildConfigField("String", "HONEYGAIN_API_KEY", "\"${honeygainApiKey.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
     }
 
     signingConfigs {
@@ -95,4 +104,15 @@ dependencies {
     implementation("androidx.palette:palette-ktx:1.0.0")
 
     implementation("com.google.android.gms:play-services-ads:23.1.0")
+
+    // Optional Honeygain SDK. The AAR is proprietary and cannot be committed or
+    // distributed via Google Play. Drop it in app/libs/ and set honeygain.apiKey
+    // in local.properties to enable the support programme.
+    val honeygainAar = file("libs/hgsdk.aar")
+    if (honeygainAar.exists()) {
+        implementation(files(honeygainAar))
+        implementation("org.msgpack:msgpack-core:0.9.11")
+        implementation("com.google.protobuf:protobuf-javalite:3.25.3")
+        implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    }
 }

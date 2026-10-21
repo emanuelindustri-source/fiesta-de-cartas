@@ -34,7 +34,7 @@ enum class Festival(val key: String, val emoji: String, val title: String) {
             if (today in (easterDay - 7) until easterDay) return SEMANA_SANTA
             if (today in easterDay..(easterDay + 7)) return EASTER
 
-            if (month == 10 && day >= 25) return HALLOWEEN
+            if (month == 10) return HALLOWEEN
             if (month == 11 && day <= 2) return HALLOWEEN
             return FIESTA
         }

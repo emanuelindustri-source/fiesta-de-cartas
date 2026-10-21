@@ -29,6 +29,7 @@ import com.fiestadecartas.app.ads.Interstitial
 import com.fiestadecartas.app.data.Avatars
 import com.fiestadecartas.app.data.Prefs
 import com.fiestadecartas.app.data.Profile
+import com.fiestadecartas.app.net.LanSession
 import com.fiestadecartas.app.ui.ConfettiOverlay
 import com.fiestadecartas.app.ui.Feedback
 import com.fiestadecartas.app.ui.GameScaffold
@@ -45,31 +46,84 @@ private val KEMIX_SEAT_COLORS = listOf(
 )
 
 @Composable
-fun KemixScreen() {
+fun KemixScreen(lan: Boolean = false, hotseat: Boolean = false) {
     val context = LocalContext.current
     val activity = context as? Activity
     val palette = LocalPalette.current
+    val isLan = lan && LanSession.role != "none"
+    val localHotseat = hotseat && !isLan
+    val mySeat = if (isLan) LanSession.mySeat else 0
+    val playersCount = if (isLan) LanSession.players.coerceIn(2, 4) else 4
     val localSeed = remember { System.currentTimeMillis() }
+    val seed = if (isLan) LanSession.seed else localSeed
     var restart by remember { mutableIntStateOf(0) }
     var revision by remember { mutableIntStateOf(0) }
     var showRules by remember { mutableStateOf(false) }
     var recorded by remember(restart) { mutableStateOf(false) }
 
     val myName = Prefs.nickname.ifBlank { stringResource(R.string.you) }
-    val names = remember(myName) { listOf(myName, "Bot 1", "Bot 2", "Bot 3") }
-    val game = remember(localSeed, restart) {
-        KemixGame(names, setOf(1, 2, 3), localSeed + restart * 53L)
+    val playerLabels = (1..playersCount).map { stringResource(R.string.player_number, it) }
+    val lanHostLabel = LanSession.hostName.ifBlank { stringResource(R.string.host) }
+    val lanGuestLabel = LanSession.guestName.ifBlank { stringResource(R.string.guest) }
+    val names = remember(myName, isLan, localHotseat, playersCount, playerLabels, lanHostLabel, lanGuestLabel) {
+        val list = mutableListOf<String>()
+        if (isLan) {
+            list += lanHostLabel
+            list += lanGuestLabel
+        } else if (localHotseat) {
+            list += playerLabels
+        } else {
+            list += myName
+        }
+        var b = 1
+        while (list.size < playersCount) { list += "Bot $b"; b++ }
+        list
     }
-    val canAct = game.phase == KemixPhase.PLAYING && game.current == 0 && !game.pendingHide
+    val bots = remember(isLan, localHotseat) {
+        when {
+            isLan -> (2 until playersCount).toSet()
+            localHotseat -> emptySet()
+            else -> (1 until playersCount).toSet()
+        }
+    }
+    val game = remember(seed, restart, playersCount, localHotseat, bots) {
+        KemixGame(names, bots, seed + restart * 53L)
+    }
+    val activeSeat = if (localHotseat) game.current else mySeat
+    val canAct = game.phase == KemixPhase.PLAYING && game.current == activeSeat && !game.pendingHide
+    val isHost = !isLan || LanSession.role == "host"
+
+    fun applyFlip(index: Int, send: Boolean) {
+        if (index !in game.cards.indices) return
+        val matchedNow = game.firstFlip >= 0 && game.cards[game.firstFlip].family == game.cards[index].family
+        if (game.flip(index)) {
+            if (matchedNow) Feedback.play() else Feedback.click()
+            revision++
+            if (send && isLan) LanSession.sendAction("FLIP:$index")
+        }
+    }
+
+    fun remoteAction(action: String) {
+        when {
+            action.startsWith("FLIP:") -> action.substringAfter(':').toIntOrNull()?.let { game.flip(it); revision++ }
+            action == "RESOLVE" -> { game.resolveMismatch(); revision++ }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        LanSession.onRemoteAction = { action -> remoteAction(action) }
+        onDispose { LanSession.onRemoteAction = null }
+    }
 
     LaunchedEffect(revision, game.current, game.phase, game.pendingHide) {
-        if (game.phase == KemixPhase.PLAYING && game.isBotTurn() && !game.pendingHide) {
+        if (game.phase == KemixPhase.PLAYING && game.isBotTurn() && !game.pendingHide && isHost) {
             if (game.firstFlip < 0) {
                 delay(750)
                 val pick = game.botFirstPick()
                 if (pick >= 0 && game.flip(pick)) {
                     Feedback.click()
                     revision++
+                    if (isLan) LanSession.sendAction("FLIP:$pick")
                 }
             } else {
                 delay(800)
@@ -79,23 +133,25 @@ fun KemixScreen() {
                     if (game.flip(pick)) {
                         if (matched) Feedback.play() else Feedback.error()
                         revision++
+                        if (isLan) LanSession.sendAction("FLIP:$pick")
                     }
                 }
             }
         }
     }
-    LaunchedEffect(game.pendingHide) {
-        if (game.pendingHide) {
+    LaunchedEffect(game.pendingHide, isHost) {
+        if (game.pendingHide && isHost) {
             delay(1100)
             game.resolveMismatch()
             revision++
+            if (isLan) LanSession.sendAction("RESOLVE")
         }
     }
     LaunchedEffect(game.phase) {
         if (game.phase == KemixPhase.OVER && !recorded) {
             recorded = true
-            Prefs.recordResult(game.winner == 0)
-            if (game.winner == 0) Feedback.win() else Feedback.error()
+            Prefs.recordResult(game.winner == mySeat)
+            if (game.winner == activeSeat) Feedback.win() else Feedback.error()
             Interstitial.maybeShow(activity)
         }
     }
@@ -103,8 +159,15 @@ fun KemixScreen() {
     val tick = revision
     GameScaffold(
         title = stringResource(R.string.kemix_name),
-        subtitle = stringResource(R.string.play_bots),
-        onBack = { Nav.go(Screen.Home) },
+        subtitle = when {
+            isLan -> "WiFi · ${stringResource(R.string.room_code)} ${LanSession.code}"
+            localHotseat -> stringResource(R.string.play_hotseat)
+            else -> stringResource(R.string.play_bots)
+        },
+        onBack = {
+            if (isLan) LanSession.stop()
+            Nav.go(Screen.Home)
+        },
         actions = {
             IconButton(onClick = { showRules = true }) { Icon(Icons.Rounded.Info, null) }
             IconButton(onClick = { restart++; Feedback.click() }) { Icon(Icons.Rounded.Refresh, null) }
@@ -119,7 +182,7 @@ fun KemixScreen() {
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 names.forEachIndexed { i, name ->
-                    val av = if (i == 0) Profile.avatar else Avatars.all[(i + 1) % Avatars.all.size]
+                    val av = if (i == mySeat) Profile.avatar else Avatars.all[(i + 1) % Avatars.all.size]
                     PlayerBadge(
                         name = name,
                         points = game.pairs[i],
@@ -133,7 +196,7 @@ fun KemixScreen() {
             }
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                StatChip("${stringResource(R.string.pairs)}: ${game.pairs[0]}", color = palette.accent)
+                StatChip("${stringResource(R.string.pairs)}: ${game.pairs[activeSeat]}", color = palette.accent)
                 Spacer(Modifier.width(6.dp))
                 StatChip("${stringResource(R.string.cards_left, 12 - game.pairs.sum())}", color = palette.accent2)
             }
@@ -141,11 +204,11 @@ fun KemixScreen() {
             Text(
                 when {
                     game.phase == KemixPhase.OVER -> stringResource(R.string.game_over)
-                    game.current == 0 -> stringResource(R.string.your_turn)
+                    game.current == activeSeat && !localHotseat -> stringResource(R.string.your_turn)
                     else -> stringResource(R.string.turn_of, names.getOrElse(game.current) { "" })
                 },
                 style = MaterialTheme.typography.titleMedium,
-                color = if (game.current == 0) palette.accent else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f)
+                color = if (game.current == activeSeat) palette.accent else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f)
             )
             Text(
                 game.message,
@@ -184,12 +247,7 @@ fun KemixScreen() {
                                         faceUp = faceUp,
                                         onClick = {
                                             if (!canAct || faceUp) return@KemixCardView
-                                            val matchedNow = game.firstFlip >= 0 &&
-                                                game.cards[game.firstFlip].family == card.family
-                                            if (game.flip(index)) {
-                                                if (matchedNow) Feedback.play() else Feedback.click()
-                                                revision++
-                                            }
+                                            applyFlip(index, send = true)
                                         }
                                     )
                                     if (matched) {
@@ -228,7 +286,7 @@ fun KemixScreen() {
             )
             Spacer(Modifier.height(10.dp))
         }
-        ConfettiOverlay(visible = game.phase == KemixPhase.OVER && game.winner == 0)
+        ConfettiOverlay(visible = game.phase == KemixPhase.OVER && game.winner == activeSeat)
     }
 
     if (game.phase == KemixPhase.OVER) {
@@ -236,7 +294,7 @@ fun KemixScreen() {
             onDismissRequest = { },
             title = {
                 Text(
-                    if (game.winner == 0) stringResource(R.string.winner)
+                    if (game.winner == activeSeat) stringResource(R.string.winner)
                     else stringResource(R.string.game_over),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -263,7 +321,12 @@ fun KemixScreen() {
             },
             confirmButton = {
                 PrimaryButton(stringResource(R.string.play_again)) {
-                    restart++
+                    if (isLan) {
+                        LanSession.stop()
+                        Nav.go(Screen.Home)
+                    } else {
+                        restart++
+                    }
                     Feedback.click()
                 }
             }

@@ -31,6 +31,7 @@ import com.fiestadecartas.app.data.Avatars
 import com.fiestadecartas.app.data.GameConfig
 import com.fiestadecartas.app.data.Prefs
 import com.fiestadecartas.app.data.Profile
+import com.fiestadecartas.app.net.LanSession
 import com.fiestadecartas.app.ui.ConfettiOverlay
 import com.fiestadecartas.app.ui.Feedback
 import com.fiestadecartas.app.ui.GameScaffold
@@ -48,28 +49,117 @@ private val NERVIOSO_SEAT_COLORS = listOf(
 )
 
 @Composable
-fun NerviosoScreen() {
+fun NerviosoScreen(lan: Boolean = false, hotseat: Boolean = false) {
     val context = LocalContext.current
     val activity = context as? Activity
     val palette = LocalPalette.current
+    val isLan = lan && LanSession.role != "none"
+    val localHotseat = hotseat && !isLan
+    val mySeat = if (isLan) LanSession.mySeat else 0
+    val playersCount = if (isLan) LanSession.players.coerceIn(2, 4) else 4
     val localSeed = remember { System.currentTimeMillis() }
+    val seed = if (isLan) LanSession.seed else localSeed
     var restart by remember { mutableIntStateOf(0) }
     var revision by remember { mutableIntStateOf(0) }
     var showRules by remember { mutableStateOf(false) }
     var recorded by remember(restart) { mutableStateOf(false) }
+    var pendingSlap by remember { mutableStateOf(false) }
 
     val myName = Prefs.nickname.ifBlank { stringResource(R.string.you) }
-    val names = remember(myName) { listOf(myName, "Bot 1", "Bot 2", "Bot 3") }
-    val bots = remember { setOf(1, 2, 3) }
-    val game = remember(localSeed, restart) {
-        NerviosoGame(names, bots, localSeed + restart * 89L, GameConfig.nerviosoStartCards)
+    val playerLabels = (1..playersCount).map { stringResource(R.string.player_number, it) }
+    val lanHostLabel = LanSession.hostName.ifBlank { stringResource(R.string.host) }
+    val lanGuestLabel = LanSession.guestName.ifBlank { stringResource(R.string.guest) }
+    val names = remember(myName, isLan, localHotseat, playersCount, playerLabels, lanHostLabel, lanGuestLabel) {
+        val list = mutableListOf<String>()
+        if (isLan) {
+            list += lanHostLabel
+            list += lanGuestLabel
+        } else if (localHotseat) {
+            list += playerLabels
+        } else list += myName
+        var b = 1
+        while (list.size < playersCount) { list += "Bot $b"; b++ }
+        list
     }
-    val myHand = game.hands[0]
-    val canPlay = game.phase == NerviosoPhase.TURN && game.current == 0
-    val canSlap = game.phase == NerviosoPhase.SLAP && 0 !in game.slaps
+    val isHost = !isLan || LanSession.role == "host"
+    val bots = remember(isLan, localHotseat, playersCount) {
+        when {
+            isLan -> if (isHost) (2 until playersCount).toSet() else emptySet()
+            localHotseat -> emptySet()
+            else -> (1 until playersCount).toSet()
+        }
+    }
+    val game = remember(seed, restart, playersCount, localHotseat, bots) {
+        NerviosoGame(names, bots, seed + restart * 89L, GameConfig.nerviosoStartCards)
+    }
+    val activeSeat = if (localHotseat) game.current else mySeat
+    val myHand = game.hands.getOrNull(activeSeat).orEmpty()
+    val canPlay = game.phase == NerviosoPhase.TURN && game.current == activeSeat
+    val nextSlapSeat = (0 until names.size).firstOrNull { it !in game.slaps } ?: -1
+    val canSlap = game.phase == NerviosoPhase.SLAP && when {
+        isLan && !isHost -> !pendingSlap && mySeat !in game.slaps
+        localHotseat -> nextSlapSeat >= 0
+        else -> activeSeat !in game.slaps
+    }
 
-    LaunchedEffect(revision, game.current, game.phase) {
-        if (game.phase == NerviosoPhase.TURN && game.isBotTurn()) {
+    fun applyPlay(seat: Int, index: Int, send: Boolean) {
+        val play = game.playCard(seat, index) ?: return
+        if (play.match) Feedback.play() else Feedback.click()
+        revision++
+        if (send && isLan) {
+            if (LanSession.role == "host") LanSession.sendAction("PLAY:$seat:$index")
+            else LanSession.sendAction("PLAY:$index")
+        }
+    }
+
+    fun applySlap(seat: Int, send: Boolean) {
+        if (seat !in names.indices || seat in game.slaps) return
+        val loser = game.slap(seat)
+        if (loser >= 0 || seat in game.slaps) revision++
+        if (loser == seat) Feedback.error() else Feedback.play()
+        if (send && isLan && LanSession.role == "host") LanSession.sendAction("SLAP:$seat")
+    }
+
+    fun doSlap() {
+        if (!canSlap) return
+        val seat = if (localHotseat) nextSlapSeat else activeSeat
+        if (seat < 0) return
+        if (isLan && LanSession.role == "guest") {
+            pendingSlap = true
+            LanSession.sendAction("SLAP")
+            return
+        }
+        applySlap(seat, send = true)
+    }
+
+    fun remoteAction(action: String) {
+        val parts = action.split(":")
+        when (parts.getOrNull(0)) {
+            "PLAY" -> {
+                val a = parts.getOrNull(1)?.toIntOrNull()
+                val b = parts.getOrNull(2)?.toIntOrNull()
+                if (a != null && b != null) {
+                    applyPlay(a, b, send = false)
+                } else if (a != null) {
+                    applyPlay(1, a, send = false)
+                }
+            }
+            "SLAP" -> {
+                val seat = parts.getOrNull(1)?.toIntOrNull() ?: 1
+                applySlap(seat, send = false)
+                if (isLan && LanSession.role == "host") LanSession.sendAction("SLAP:$seat")
+            }
+            "RESET" -> { restart++; revision++ }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        LanSession.onRemoteAction = { action -> remoteAction(action) }
+        onDispose { LanSession.onRemoteAction = null }
+    }
+
+    LaunchedEffect(revision, game.current, game.phase, game.isBotTurn()) {
+        if (game.phase == NerviosoPhase.TURN && game.isBotTurn() && isHost) {
             delay(950)
             val seat = game.current
             val idx = game.botPick(seat)
@@ -77,11 +167,12 @@ fun NerviosoScreen() {
                 game.playCard(seat, idx)
                 Feedback.click()
                 revision++
+                if (isLan) LanSession.sendAction("PLAY:$seat:$idx")
             }
         }
     }
-    LaunchedEffect(game.phase, game.slapRound) {
-        if (game.phase == NerviosoPhase.SLAP) {
+    LaunchedEffect(game.phase, game.slapRound, isHost) {
+        if (game.phase == NerviosoPhase.SLAP && isHost) {
             bots.forEachIndexed { order, seat ->
                 launch {
                     delay(game.botSlapDelay(seat) + order * 140L)
@@ -89,6 +180,7 @@ fun NerviosoScreen() {
                         game.slap(seat)
                         Feedback.click()
                         revision++
+                        if (isLan) LanSession.sendAction("SLAP:$seat")
                     }
                 }
             }
@@ -97,15 +189,17 @@ fun NerviosoScreen() {
                 if (game.phase == NerviosoPhase.SLAP && 0 !in game.slaps) {
                     game.slap(0)
                     revision++
+                    if (isLan) LanSession.sendAction("SLAP:0")
                 }
             }
         }
     }
     LaunchedEffect(game.phase) {
+        if (game.phase != NerviosoPhase.SLAP) pendingSlap = false
         if (game.phase == NerviosoPhase.OVER && !recorded) {
             recorded = true
-            Prefs.recordResult(game.winner == 0)
-            if (game.winner == 0) Feedback.win() else Feedback.error()
+            Prefs.recordResult(game.winner == mySeat)
+            if (game.winner == activeSeat) Feedback.win() else Feedback.error()
             Interstitial.maybeShow(activity)
         }
     }
@@ -113,8 +207,15 @@ fun NerviosoScreen() {
     val tick = revision
     GameScaffold(
         title = stringResource(R.string.nervioso_name),
-        subtitle = stringResource(R.string.play_bots),
-        onBack = { Nav.go(Screen.Home) },
+        subtitle = when {
+            isLan -> "WiFi · ${stringResource(R.string.room_code)} ${LanSession.code}"
+            localHotseat -> stringResource(R.string.play_hotseat)
+            else -> stringResource(R.string.play_bots)
+        },
+        onBack = {
+            if (isLan) LanSession.stop()
+            Nav.go(Screen.Home)
+        },
         actions = {
             IconButton(onClick = { showRules = true }) { Icon(Icons.Rounded.Info, null) }
             IconButton(onClick = { restart++; Feedback.click() }) { Icon(Icons.Rounded.Refresh, null) }
@@ -129,7 +230,7 @@ fun NerviosoScreen() {
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 names.forEachIndexed { i, name ->
-                    val av = if (i == 0) Profile.avatar else Avatars.all[(i + 1) % Avatars.all.size]
+                    val av = if (i == (if (isLan) mySeat else 0)) Profile.avatar else Avatars.all[(i + 1) % Avatars.all.size]
                     PlayerBadge(
                         name = name,
                         points = game.hands[i].size,
@@ -149,7 +250,7 @@ fun NerviosoScreen() {
                 )
                 Spacer(Modifier.width(6.dp))
                 StatChip(
-                    if (game.current == 0) stringResource(R.string.your_turn)
+                    if (game.current == activeSeat && !localHotseat) stringResource(R.string.your_turn)
                     else stringResource(R.string.turn_of, names.getOrElse(game.current) { "" }),
                     color = NERVIOSO_SEAT_COLORS[game.current % 4]
                 )
@@ -243,7 +344,12 @@ fun NerviosoScreen() {
                     )
                     Spacer(Modifier.height(10.dp))
                     PrimaryButton(stringResource(R.string.play_again), Modifier.fillMaxWidth()) {
-                        restart++
+                        if (isLan) {
+                            LanSession.stop()
+                            Nav.go(Screen.Home)
+                        } else {
+                            restart++
+                        }
                         Feedback.click()
                     }
                 }
@@ -268,9 +374,7 @@ fun NerviosoScreen() {
                                 highlighted = ok,
                                 onClick = {
                                     if (!canPlay) return@SpanishCardView
-                                    val play = game.playCard(0, index) ?: return@SpanishCardView
-                                    if (play.match) Feedback.play() else Feedback.click()
-                                    revision++
+                                    applyPlay(activeSeat, index, send = true)
                                 }
                             )
                         }
@@ -280,9 +384,7 @@ fun NerviosoScreen() {
                 if (game.phase == NerviosoPhase.SLAP) {
                     Button(
                         onClick = {
-                            val loser = game.slap(0)
-                            if (loser == 0) Feedback.error() else Feedback.play()
-                            revision++
+                            doSlap()
                         },
                         enabled = canSlap,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp),
@@ -314,7 +416,7 @@ fun NerviosoScreen() {
             }
             Spacer(Modifier.height(10.dp))
         }
-        ConfettiOverlay(visible = game.phase == NerviosoPhase.OVER && game.winner == 0)
+        ConfettiOverlay(visible = game.phase == NerviosoPhase.OVER && game.winner == activeSeat)
     }
 
     if (game.phase == NerviosoPhase.OVER && !recorded) {

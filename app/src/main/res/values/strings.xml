@@ -291,5 +291,18 @@
     <string name="level_up">¡Nivel %1$d!</string>
     <string name="practice_chips">Fichas de práctica</string>
     <string name="fichas_note">Las fichas son virtuales y no tienen valor en dinero real.</string>
+    <string name="support_title">Apoyar la app</string>
+    <string name="support_body">Mientras juegas, Fiesta de Cartas puede compartir una pequeña parte de tu internet sin usar para mantener el proyecto gratuito y con más contenido. Es opcional, no cambia las partidas y puedes desactivarlo cuando quieras.</string>
+    <string name="support_on">Apoyo activo</string>
+    <string name="support_off">Apoyo desactivado</string>
+    <string name="support_unavailable">Esta compilación no incluye el SDK de Honeygain.</string>
+    <string name="support_missing_key">Falta configurar la clave del SDK de Honeygain.</string>
+    <string name="support_how">Cómo activarlo</string>
+    <string name="support_legal">Leer la política de Honeygain</string>
+    <string name="support_note">Solo funciona mientras la app está abierta, con tu consentimiento. No se ejecuta en segundo plano.</string>
+    <string name="support_thanks">Gracias por mantener la fiesta gratis.</string>
+    <string name="support_error">No se pudo iniciar el apoyo: %1$s</string>
+    <string name="play_hotseat">Sin bots · mismo teléfono</string>
+    <string name="player_number">Jugador %1$d</string>
 </resources>
 

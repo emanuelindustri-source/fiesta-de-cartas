@@ -20,6 +20,8 @@ keystore.properties
 *.keystore
 .env
 .env.*
+app/libs/hgsdk.aar
+hgsdk.aar
 
 # IDE / editors
 .idea/

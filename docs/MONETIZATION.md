@@ -3,24 +3,30 @@
 > Documento de trabajo. No es asesoría legal ni financiera. Las políticas de cada
 > plataforma cambian; verifica siempre sus términos vigentes.
 
-## 1. Honeygain no es una red de anuncios
+## 1. Honeygain: SDK de ancho de banda, no red de anuncios
 
-Honeygain es una app de **ingreso pasivo por compartir ancho de banda**: instala
-su cliente en Android, Windows, macOS o Linux y cede parte del internet sin usar
-a la red de Honeygain. No es una red publicitaria y **no ofrece un SDK público
-para que otra app muestre anuncios**. Por eso no se puede "integrar Honeygain"
-dentro de Fiesta de Cartas como si fuera AdMob.
+Honeygain ofrece un **SDK** para apps de escritorio y móviles (Android, Windows,
+Linux, macOS, etc.), pero no es una red publicitaria: el usuario comparte parte de
+su ancho de banda sin usar y el integrador recibe ingresos según el tráfico. La app
+puede mostrar anuncios por separado con AdMob.
 
-Además, integrar la cesión de ancho de banda dentro de un juego traería riesgos:
+Requisitos y límites:
 
-- Consentimiento explícito, información clara y posibilidad de apagarlo.
-- Posible conflicto con los términos del proveedor de internet y con las políticas
-  de Google Play (sobre todo si se dirige a menores).
-- Consumo de batería, datos y reputación de la IP del usuario.
-- Ningún ingreso garantizado: Honeygain paga según demanda, ubicación y tráfico.
+- Necesitas una cuenta en <https://sdk.honeygain.com/dashboard>, una **API key** y
+  descargar `hgsdk.aar`.
+- La AAR es propietaria y **no se puede subir al repositorio**; se coloca en
+  `app/libs/` (ignorada por Git) y la clave en `local.properties`.
+- **No se permite integrarlo en apps de Google Play.** La distribución directa por
+  APK sí es compatible, pero si publicas en Play hay que quitar el SDK.
+- El consentimiento debe ser explícito y revocable. La app usa la pantalla oficial
+  de Honeygain y no lo arranca en segundo plano.
+- Puede consumir batería/datos y afectar la reputación de la IP del usuario; hay que
+  explicarlo con claridad.
+- Los ingresos dependen de la demanda por país y no están garantizados.
 
-Recomendación: **no** metas Honeygain dentro de la app. Si te interesa el modelo,
-ofrécelo como app separada o como enlace informativo, nunca silenciosamente.
+La integración de este proyecto está documentada en [`HONEYGAIN.md`](HONEYGAIN.md).
+En la compilación pública actual el SDK no está incluido porque falta la AAR y la
+clave; la tarjeta de Ajustes aparece como no disponible.
 
 ## 2. Proveedores de anuncios para Android
 

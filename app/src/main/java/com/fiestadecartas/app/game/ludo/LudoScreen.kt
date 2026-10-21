@@ -61,11 +61,12 @@ private val PLAYER_COLORS = listOf(
 )
 
 @Composable
-fun LudoScreen(lan: Boolean = false) {
+fun LudoScreen(lan: Boolean = false, hotseat: Boolean = false) {
     val context = LocalContext.current
     val activity = context as? Activity
     val palette = LocalPalette.current
     val isLan = lan && LanSession.role != "none"
+    val localHotseat = hotseat && !isLan
     val mySeat = if (isLan) LanSession.mySeat else 0
     val playersCount = 4
     val localSeed = remember { System.currentTimeMillis() }
@@ -85,19 +86,26 @@ fun LudoScreen(lan: Boolean = false) {
     val youLabel = stringResource(R.string.you)
     val hostLabel = stringResource(R.string.host)
     val guestLabel = stringResource(R.string.guest)
-    val names = remember(LanSession.hostName, LanSession.guestName, isLan, youLabel, hostLabel, guestLabel) {
+    val playerLabels = (1..4).map { stringResource(R.string.player_number, it) }
+    val names = remember(LanSession.hostName, LanSession.guestName, isLan, youLabel, hostLabel, guestLabel, localHotseat, playerLabels) {
         val list = mutableListOf<String>()
         if (isLan) {
             list += LanSession.hostName.takeIf { it.isNotBlank() && it != "Anfitrión" } ?: hostLabel
             list += LanSession.guestName.takeIf { it.isNotBlank() && it != "Invitado" } ?: guestLabel
+        } else if (localHotseat) {
+            list += playerLabels
         } else list += youLabel
         while (list.size < 4) list += "Bot ${list.size}"
         list
     }
-    val botSeats = remember(isLan) {
-        if (isLan) setOf(2, 3) else setOf(1, 2, 3)
+    val botSeats = remember(isLan, localHotseat) {
+        when {
+            isLan -> setOf(2, 3)
+            localHotseat -> emptySet()
+            else -> setOf(1, 2, 3)
+        }
     }
-    val game = remember(seed, restart) {
+    val game = remember(seed, restart, localHotseat) {
         LudoGame(names, botSeats, seed + restart * 131L, GameConfig.ludoHomeTokens)
     }
     LaunchedEffect(game.dice, game.rolled) {
@@ -107,7 +115,8 @@ fun LudoScreen(lan: Boolean = false) {
         }
     }
     val isHost = !isLan || LanSession.role == "host"
-    val movable = if (game.rolled && game.current == mySeat) game.legalMoves() else emptyList()
+    val activeSeat = if (localHotseat) game.current else mySeat
+    val movable = if (game.rolled && game.current == activeSeat) game.legalMoves() else emptyList()
 
     fun sendAndApply(action: String, block: () -> Unit) {
         block()
@@ -212,7 +221,7 @@ fun LudoScreen(lan: Boolean = false) {
                 LudoBoard(
                     game = game,
                     movable = movable,
-                    mySeat = mySeat,
+                    mySeat = activeSeat,
                     onToken = { t ->
                         Feedback.play()
                         sendAndApply("M:$t") { game.move(t) }
@@ -231,11 +240,11 @@ fun LudoScreen(lan: Boolean = false) {
                         Text(
                             when {
                                 game.phase == LudoPhase.OVER -> stringResource(R.string.game_over)
-                                game.current == mySeat -> stringResource(R.string.your_turn)
+                                game.current == activeSeat && !localHotseat -> stringResource(R.string.your_turn)
                                 else -> stringResource(R.string.turn_of, names[game.current])
                             },
                             style = MaterialTheme.typography.titleMedium,
-                            color = if (game.current == mySeat) palette.accent else MaterialTheme.colorScheme.onSurface,
+                            color = if (game.current == activeSeat) palette.accent else MaterialTheme.colorScheme.onSurface,
                             maxLines = 1
                         )
                         Text(
@@ -246,7 +255,7 @@ fun LudoScreen(lan: Boolean = false) {
                         )
                         if (game.lastCapture) StatChip(stringResource(R.string.captured), color = Color(0xFFE63946))
                     }
-                    if (game.phase != LudoPhase.OVER && game.current == mySeat) {
+                    if (game.phase != LudoPhase.OVER && game.current == activeSeat) {
                         if (!game.rolled) {
                             PrimaryButton(stringResource(R.string.roll)) {
                                 Feedback.click()
@@ -262,7 +271,7 @@ fun LudoScreen(lan: Boolean = false) {
                         }
                     }
                 }
-                if (game.rolled && movable.isNotEmpty() && game.current == mySeat) {
+                if (game.rolled && movable.isNotEmpty() && game.current == activeSeat) {
                     Spacer(Modifier.height(8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         movable.forEach { t ->
@@ -338,17 +347,46 @@ private fun LudoBoard(game: LudoGame, movable: List<Int>, mySeat: Int, onToken: 
         val boardSize = cell * 15f
         val offset = Offset((size.width - boardSize) / 2f, (size.height - boardSize) / 2f)
 
+        // Board shadow and carved wooden frame.
         drawRoundRect(
-            color = Color(0xFF0C2B21),
+            color = Color.Black.copy(alpha = 0.32f),
+            topLeft = Offset(cell * 0.18f, cell * 0.24f),
+            size = Size(boardSize, boardSize),
+            cornerRadius = CornerRadius(cell * 0.85f)
+        )
+        drawRoundRect(
+            brush = Brush.linearGradient(
+                listOf(Color(0xFF3A2410), Color(0xFF8A5A2B), Color(0xFF5A3414), Color(0xFF2A1608)),
+                start = offset,
+                end = Offset(offset.x + boardSize, offset.y + boardSize)
+            ),
             topLeft = Offset.Zero,
             size = size,
             cornerRadius = CornerRadius(cell * 0.8f)
         )
         drawRoundRect(
-            color = cream,
+            color = Color(0xFFD8A93B).copy(alpha = 0.55f),
+            topLeft = Offset(cell * 0.10f, cell * 0.10f),
+            size = Size(size.width - cell * 0.20f, size.height - cell * 0.20f),
+            cornerRadius = CornerRadius(cell * 0.72f),
+            style = Stroke(width = cell * 0.055f)
+        )
+        drawRoundRect(
+            brush = Brush.linearGradient(
+                listOf(Color(0xFFFFFDF5), Color(0xFFF8EFDD), Color(0xFFE9D9B8)),
+                start = offset,
+                end = Offset(offset.x + boardSize, offset.y + boardSize)
+            ),
             topLeft = offset,
             size = Size(boardSize, boardSize),
             cornerRadius = CornerRadius(cell * 0.45f)
+        )
+        drawRoundRect(
+            color = Color(0xFF7A5A2E).copy(alpha = 0.45f),
+            topLeft = offset,
+            size = Size(boardSize, boardSize),
+            cornerRadius = CornerRadius(cell * 0.45f),
+            style = Stroke(width = cell * 0.045f)
         )
 
         // Yards
@@ -394,6 +432,12 @@ private fun LudoBoard(game: LudoGame, movable: List<Int>, mySeat: Int, onToken: 
                 else -> track
             }
             drawRoundRect(
+                color = Color.Black.copy(alpha = 0.12f),
+                topLeft = Offset(topLeft.x + cell * 0.045f, topLeft.y + cell * 0.06f),
+                size = Size(cell * 0.88f, cell * 0.88f),
+                cornerRadius = CornerRadius(cell * 0.18f)
+            )
+            drawRoundRect(
                 color = fill,
                 topLeft = topLeft,
                 size = Size(cell * 0.88f, cell * 0.88f),
@@ -407,8 +451,16 @@ private fun LudoBoard(game: LudoGame, movable: List<Int>, mySeat: Int, onToken: 
                 style = Stroke(width = cell * 0.04f)
             )
             if (index in LUDO_SAFE && !isStart) {
+                val star = starPath(
+                    Offset(topLeft.x + cell * 0.44f, topLeft.y + cell * 0.44f),
+                    cell * 0.20f
+                )
+                drawPath(star, Color(0xFF8C7B5F).copy(alpha = 0.45f))
+                drawPath(star, Color(0xFFFFF6E2).copy(alpha = 0.55f), style = Stroke(width = cell * 0.025f))
+            }
+            if (isStart) {
                 drawCircle(
-                    Color(0xFF8C7B5F).copy(alpha = 0.35f),
+                    Color.White.copy(alpha = 0.35f),
                     radius = cell * 0.16f,
                     center = Offset(topLeft.x + cell * 0.44f, topLeft.y + cell * 0.44f),
                     style = Stroke(width = cell * 0.035f)
@@ -425,6 +477,12 @@ private fun LudoBoard(game: LudoGame, movable: List<Int>, mySeat: Int, onToken: 
                     topLeft = topLeft,
                     size = Size(cell * 0.86f, cell * 0.86f),
                     cornerRadius = CornerRadius(cell * 0.18f)
+                )
+                drawRoundRect(
+                    color = Color.White.copy(alpha = 0.16f),
+                    topLeft = Offset(topLeft.x + cell * 0.10f, topLeft.y + cell * 0.10f),
+                    size = Size(cell * 0.66f, cell * 0.20f),
+                    cornerRadius = CornerRadius(cell * 0.09f)
                 )
                 drawRoundRect(
                     Color(0xFF8C7B5F).copy(alpha = 0.25f),
@@ -456,8 +514,22 @@ private fun LudoBoard(game: LudoGame, movable: List<Int>, mySeat: Int, onToken: 
             size = Size(cell * 3f, cell * 3f),
             style = Stroke(width = cell * 0.08f)
         )
+        drawCircle(
+            Color(0xFFD8A93B).copy(alpha = 0.45f),
+            radius = cell * 1.30f,
+            center = ctr,
+            style = Stroke(width = cell * 0.045f)
+        )
+        drawCircle(
+            Color.White.copy(alpha = 0.18f),
+            radius = cell * 0.95f,
+            center = ctr,
+            style = Stroke(width = cell * 0.035f)
+        )
+        drawPath(starPath(ctr, cell * 0.58f), Color(0xFFD8A93B).copy(alpha = 0.65f))
+        drawPath(starPath(ctr, cell * 0.58f), Color(0xFFFFF6E2).copy(alpha = 0.45f), style = Stroke(width = cell * 0.03f))
 
-        // Tokens
+        // Tokens with a small 3D finish.
         for (p in 0..3) {
             for (t in 0..3) {
                 val c = tokenCenter(game, p, t, cell, offset)
@@ -469,10 +541,23 @@ private fun LudoBoard(game: LudoGame, movable: List<Int>, mySeat: Int, onToken: 
                         center = c
                     )
                 }
-                drawCircle(Color.Black.copy(alpha = 0.22f), radius = cell * 0.40f, center = Offset(c.x + cell * 0.05f, c.y + cell * 0.07f))
-                drawCircle(Color.White, radius = cell * 0.40f, center = c)
-                drawCircle(PLAYER_COLORS[p], radius = cell * 0.33f, center = c)
-                drawCircle(Color.White.copy(alpha = 0.85f), radius = cell * 0.12f, center = c)
+                val isHome = game.tokens[p][t] == 56
+                drawCircle(Color.Black.copy(alpha = 0.24f), radius = cell * 0.42f, center = Offset(c.x + cell * 0.055f, c.y + cell * 0.075f))
+                drawCircle(Color(0xFFFFF6E2), radius = cell * 0.41f, center = c)
+                drawCircle(Color(0xFF8C7B5F).copy(alpha = 0.35f), radius = cell * 0.41f, center = c, style = Stroke(width = cell * 0.035f))
+                drawCircle(
+                    Brush.radialGradient(
+                        listOf(PLAYER_COLORS[p].copy(alpha = 0.98f), PLAYER_COLORS[p].copy(alpha = 0.72f)),
+                        center = Offset(c.x - cell * 0.10f, c.y - cell * 0.12f),
+                        radius = cell * 0.40f
+                    ),
+                    radius = cell * 0.34f,
+                    center = c
+                )
+                drawCircle(Color.White.copy(alpha = 0.55f), radius = cell * 0.10f, center = Offset(c.x - cell * 0.10f, c.y - cell * 0.12f))
+                if (isHome) {
+                    drawPath(starPath(c, cell * 0.16f), Color(0xFFFFF6E2).copy(alpha = 0.95f))
+                }
             }
         }
     }
@@ -505,3 +590,16 @@ private fun tokenCenter(game: LudoGame, player: Int, token: Int, cell: Float, of
 }
 
 private fun Float.pow2() = this.pow(2)
+
+private fun starPath(center: Offset, radius: Float): Path {
+    val path = Path()
+    for (i in 0 until 10) {
+        val angle = Math.toRadians((-90 + i * 36).toDouble())
+        val r = if (i % 2 == 0) radius else radius * 0.44f
+        val x = center.x + (kotlin.math.cos(angle) * r).toFloat()
+        val y = center.y + (kotlin.math.sin(angle) * r).toFloat()
+        if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+    }
+    path.close()
+    return path
+}

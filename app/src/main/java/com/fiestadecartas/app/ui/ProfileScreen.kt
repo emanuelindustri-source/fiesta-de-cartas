@@ -124,7 +124,7 @@ fun ProfileScreen() {
             Spacer(Modifier.height(8.dp))
             GlassPanel(Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("🪙", fontSize = 26.sp)
+                    CoinView(size = 30.dp)
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(stringResource(R.string.practice_chips), style = MaterialTheme.typography.titleMedium)

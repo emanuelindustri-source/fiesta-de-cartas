@@ -1,5 +1,8 @@
 package com.fiestadecartas.app.ui
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -25,6 +28,7 @@ import com.fiestadecartas.app.R
 import com.fiestadecartas.app.Screen
 import com.fiestadecartas.app.ads.BannerAd
 import com.fiestadecartas.app.data.DeviceInfo
+import com.fiestadecartas.app.data.HoneygainSupport
 import com.fiestadecartas.app.data.Prefs
 import com.fiestadecartas.app.data.Profile
 import com.fiestadecartas.app.ui.theme.Festival
@@ -33,6 +37,7 @@ import com.fiestadecartas.app.ui.theme.LocalPalette
 @Composable
 fun SettingsScreen() {
     val palette = LocalPalette.current
+    val context = LocalContext.current
     var nickname by remember { mutableStateOf(Prefs.nickname) }
     FiestaBackground {
         Column(
@@ -218,6 +223,78 @@ fun SettingsScreen() {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
                 )
+            }
+
+            Spacer(Modifier.height(16.dp))
+            val activity = context as? Activity
+            SettingsSection(stringResource(R.string.support_title), Icons.Rounded.Favorite) {
+                Text(
+                    stringResource(R.string.support_body),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f)
+                )
+                Spacer(Modifier.height(10.dp))
+                if (HoneygainSupport.configured) {
+                    SwitchRow(
+                        title = if (HoneygainSupport.optedIn) stringResource(R.string.support_on) else stringResource(R.string.support_off),
+                        subtitle = stringResource(R.string.support_note),
+                        checked = HoneygainSupport.optedIn,
+                        onChange = { enabled ->
+                            if (enabled) {
+                                activity?.let { HoneygainSupport.requestConsent(it) }
+                            } else {
+                                HoneygainSupport.optOut()
+                            }
+                        }
+                    )
+                    if (HoneygainSupport.optedIn) {
+                        Text(
+                            stringResource(R.string.support_thanks),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = palette.accent
+                        )
+                    }
+                    HoneygainSupport.lastError?.let { message ->
+                        Text(
+                            stringResource(R.string.support_error, message),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                } else {
+                    Text(
+                        stringResource(
+                            if (HoneygainSupport.available) R.string.support_missing_key else R.string.support_unavailable
+                        ),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        stringResource(R.string.support_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    SecondaryButton(stringResource(R.string.support_how), Modifier.fillMaxWidth()) {
+                        runCatching {
+                            context.startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://developers.honeygain.com/docs/integration-guides/android")
+                                )
+                            )
+                        }
+                    }
+                }
+                TextButton(onClick = {
+                    runCatching {
+                        context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse("https://www.honeygain.com/sdk-privacy-policy/"))
+                        )
+                    }
+                }) {
+                    Text(stringResource(R.string.support_legal), style = MaterialTheme.typography.labelSmall)
+                }
             }
 
             Spacer(Modifier.height(16.dp))

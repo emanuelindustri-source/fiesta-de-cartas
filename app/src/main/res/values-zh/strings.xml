@@ -291,4 +291,17 @@
     <string name="level_up">等级 %1$d！</string>
     <string name="practice_chips">练习筹码</string>
     <string name="fichas_note">筹码为虚拟物品，不具有真实货币价值。</string>
+    <string name="support_title">支持本应用</string>
+    <string name="support_body">玩游戏时，Fiesta de Cartas 可以分享少量未使用的网络带宽，让项目保持免费并持续更新。此功能完全可选，不影响对局，随时可以关闭。</string>
+    <string name="support_on">支持已开启</string>
+    <string name="support_off">支持已关闭</string>
+    <string name="support_unavailable">此版本未包含 Honeygain SDK。</string>
+    <string name="support_missing_key">尚未配置 Honeygain SDK 密钥。</string>
+    <string name="support_how">如何开启</string>
+    <string name="support_legal">阅读 Honeygain 隐私政策</string>
+    <string name="support_note">仅在应用打开且你同意时运行，不会在后台运行。</string>
+    <string name="support_thanks">感谢你让这场派对保持免费。</string>
+    <string name="support_error">无法启动支持：%1$s</string>
+    <string name="play_hotseat">无机器人 · 同设备</string>
+    <string name="player_number">玩家 %1$d</string>
 </resources>

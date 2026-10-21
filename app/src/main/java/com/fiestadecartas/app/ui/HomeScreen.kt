@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.fiestadecartas.app.Nav
 import com.fiestadecartas.app.R
 import com.fiestadecartas.app.Screen
@@ -65,8 +66,8 @@ val GAMES = listOf(
     GameEntry("caida", R.string.caida_name, R.string.caida_desc, "🃏", Color(0xFFE63946), true, R.string.rules_caida),
     GameEntry("ludo", R.string.ludo_name, R.string.ludo_desc, "🎲", Color(0xFF2A9D8F), true, R.string.rules_ludo),
     GameEntry("fiesta", R.string.fiesta_name, R.string.fiesta_desc, "🎨", Color(0xFFFFB703), true, R.string.rules_fiesta),
-    GameEntry("kemix", R.string.kemix_name, R.string.kemix_desc, "🪷", Color(0xFFFF6B9D), false, R.string.rules_kemix),
-    GameEntry("nervioso", R.string.nervioso_name, R.string.nervioso_desc, "✋", Color(0xFF8E7DBE), false, R.string.rules_nervioso)
+    GameEntry("kemix", R.string.kemix_name, R.string.kemix_desc, "🪷", Color(0xFFFF6B9D), true, R.string.rules_kemix),
+    GameEntry("nervioso", R.string.nervioso_name, R.string.nervioso_desc, "✋", Color(0xFF8E7DBE), true, R.string.rules_nervioso)
 )
 
 @Composable
@@ -115,7 +116,7 @@ fun HomeScreen() {
                     ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("🃏", fontSize = 24.sp)
+                    Text(festival.emoji, fontSize = 24.sp)
                 }
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
@@ -126,9 +127,11 @@ fun HomeScreen() {
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        dateText.replaceFirstChar { it.uppercase() },
+                        dateText.replaceFirstChar { it.uppercase() } + " · " + festival.title,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f)
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
                 IconPill(Icons.Rounded.CameraAlt) { Nav.go(Screen.Scanner) }
@@ -191,6 +194,10 @@ fun HomeScreen() {
             onFriends = {
                 modeFor = null
                 Nav.go(Screen.Lobby(game.id))
+            },
+            onHotseat = {
+                modeFor = null
+                Nav.go(Screen.Game(game.id, hotseat = true))
             }
         )
     }
@@ -229,83 +236,92 @@ private fun MatchSetupDialog(
     game: GameEntry,
     onDismiss: () -> Unit,
     onBots: () -> Unit,
-    onFriends: () -> Unit
+    onFriends: () -> Unit,
+    onHotseat: () -> Unit
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(game.nameRes)) },
-        text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                Text(
-                    stringResource(R.string.configure),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(Modifier.height(10.dp))
-                when (game.id) {
-                    "caida" -> {
-                        RuleChips(
-                            label = stringResource(R.string.players),
-                            options = listOf(2, 3, 4),
-                            selected = GameConfig.caidaPlayers,
-                            onSelect = { GameConfig.updateCaidaPlayers(it) }
-                        )
-                        RuleChips(
-                            label = stringResource(R.string.target_points),
-                            options = listOf(24, 30, 50),
-                            selected = GameConfig.caidaTarget,
-                            onSelect = { GameConfig.updateCaidaTarget(it) }
-                        )
-                    }
-                    "fiesta" -> {
-                        RuleChips(
-                            label = stringResource(R.string.players),
-                            options = listOf(2, 3, 4),
-                            selected = GameConfig.fiestaPlayers,
-                            onSelect = { GameConfig.updateFiestaPlayers(it) }
-                        )
-                        RuleChips(
-                            label = stringResource(R.string.target_points),
-                            options = listOf(200, 300, 500),
-                            selected = GameConfig.fiestaTarget,
-                            onSelect = { GameConfig.updateFiestaTarget(it) }
-                        )
-                    }
-                    "ludo" -> {
-                        Text(
-                            stringResource(R.string.players) + ": 4",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        RuleChips(
-                            label = stringResource(R.string.tokens_to_home),
-                            options = listOf(2, 3, 4),
-                            selected = GameConfig.ludoHomeTokens,
-                            onSelect = { GameConfig.updateLudoHomeTokens(it) }
-                        )
-                    }
-                    "nervioso" -> RuleChips(
-                        label = stringResource(R.string.start_cards),
-                        options = listOf(5, 7, 9),
-                        selected = GameConfig.nerviosoStartCards,
-                        onSelect = { GameConfig.updateNerviosoStartCards(it) }
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 8.dp,
+            modifier = Modifier.fillMaxWidth().heightIn(max = 660.dp)
+        ) {
+            Column(Modifier.padding(20.dp)) {
+                Text(stringResource(game.nameRes), style = MaterialTheme.typography.headlineSmall)
+                Spacer(Modifier.height(6.dp))
+                Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+                    Text(
+                        stringResource(R.string.configure),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary
                     )
-                    else -> Text(
-                        "Kemix · 6 parejas · 4 jugadores",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
-                    )
+                    Spacer(Modifier.height(10.dp))
+                    when (game.id) {
+                        "caida" -> {
+                            RuleChips(
+                                label = stringResource(R.string.players),
+                                options = listOf(2, 3, 4),
+                                selected = GameConfig.caidaPlayers,
+                                onSelect = { GameConfig.updateCaidaPlayers(it) }
+                            )
+                            RuleChips(
+                                label = stringResource(R.string.target_points),
+                                options = listOf(24, 30, 50),
+                                selected = GameConfig.caidaTarget,
+                                onSelect = { GameConfig.updateCaidaTarget(it) }
+                            )
+                        }
+                        "fiesta" -> {
+                            RuleChips(
+                                label = stringResource(R.string.players),
+                                options = listOf(2, 3, 4),
+                                selected = GameConfig.fiestaPlayers,
+                                onSelect = { GameConfig.updateFiestaPlayers(it) }
+                            )
+                            RuleChips(
+                                label = stringResource(R.string.target_points),
+                                options = listOf(200, 300, 500),
+                                selected = GameConfig.fiestaTarget,
+                                onSelect = { GameConfig.updateFiestaTarget(it) }
+                            )
+                        }
+                        "ludo" -> {
+                            Text(
+                                stringResource(R.string.players) + ": 4",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            RuleChips(
+                                label = stringResource(R.string.tokens_to_home),
+                                options = listOf(2, 3, 4),
+                                selected = GameConfig.ludoHomeTokens,
+                                onSelect = { GameConfig.updateLudoHomeTokens(it) }
+                            )
+                        }
+                        "nervioso" -> RuleChips(
+                            label = stringResource(R.string.start_cards),
+                            options = listOf(5, 7, 9),
+                            selected = GameConfig.nerviosoStartCards,
+                            onSelect = { GameConfig.updateNerviosoStartCards(it) }
+                        )
+                        else -> Text(
+                            "Kemix · 6 parejas · 4 jugadores",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+                        )
+                    }
                 }
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(14.dp))
                 PrimaryButton(stringResource(R.string.play_bots), Modifier.fillMaxWidth(), onClick = onBots)
                 if (game.lan) {
                     Spacer(Modifier.height(8.dp))
                     SecondaryButton(stringResource(R.string.play_friends), Modifier.fillMaxWidth(), onClick = onFriends)
                 }
+                Spacer(Modifier.height(8.dp))
+                SecondaryButton(stringResource(R.string.play_hotseat), Modifier.fillMaxWidth(), onClick = onHotseat)
             }
-        },
-        confirmButton = {}
-    )
+        }
+    }
 }
 
 @Composable

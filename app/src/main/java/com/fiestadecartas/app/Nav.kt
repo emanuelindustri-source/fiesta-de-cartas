@@ -9,7 +9,7 @@ sealed class Screen {
     data object Settings : Screen()
     data object Profile : Screen()
     data object Review : Screen()
-    data class Game(val id: String, val lan: Boolean = false) : Screen()
+    data class Game(val id: String, val lan: Boolean = false, val hotseat: Boolean = false) : Screen()
     data class Lobby(val game: String) : Screen()
     data object Scanner : Screen()
     data object Share : Screen()

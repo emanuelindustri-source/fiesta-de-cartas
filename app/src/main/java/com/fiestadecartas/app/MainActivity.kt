@@ -49,6 +49,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        com.fiestadecartas.app.data.HoneygainSupport.startIfOptedIn()
+    }
 }
 
 @Composable
@@ -88,11 +93,11 @@ private fun AppRoot() {
             is Screen.Profile -> com.fiestadecartas.app.ui.ProfileScreen()
             is Screen.Review -> com.fiestadecartas.app.ui.ReviewScreen()
             is Screen.Game -> when (screen.id) {
-                "caida" -> CaidaScreen(lan = screen.lan)
-                "ludo" -> LudoScreen(lan = screen.lan)
-                "fiesta" -> FiestaScreen(lan = screen.lan)
-                "kemix" -> KemixScreen()
-                else -> NerviosoScreen()
+                "caida" -> CaidaScreen(lan = screen.lan, hotseat = screen.hotseat)
+                "ludo" -> LudoScreen(lan = screen.lan, hotseat = screen.hotseat)
+                "fiesta" -> FiestaScreen(lan = screen.lan, hotseat = screen.hotseat)
+                "kemix" -> com.fiestadecartas.app.game.kemix.KemixScreen(lan = screen.lan, hotseat = screen.hotseat)
+                else -> com.fiestadecartas.app.game.nervioso.NerviosoScreen(lan = screen.lan, hotseat = screen.hotseat)
             }
             is Screen.Lobby -> LobbyScreen(screen.game)
             is Screen.Scanner -> ScannerScreen()

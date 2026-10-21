@@ -21,6 +21,8 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
  * The values below are Google's official TEST ids and never generate revenue.
  */
 object AdsConfig {
+    /** Public AdMob publisher id (safe to share; never a password). */
+    const val PUBLISHER_ID = "pub-7330148989868278"
     const val APP_ID = "ca-app-pub-3940256099942544~3347511713"
     const val BANNER_ID = "ca-app-pub-3940256099942544/6300978111"
     const val INTERSTITIAL_ID = "ca-app-pub-3940256099942544/1033173712"

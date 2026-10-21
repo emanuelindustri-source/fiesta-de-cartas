@@ -56,11 +56,12 @@ private val FIESTA_COLORS = listOf(
 fun colorOf(c: FiestaColor): Color = FIESTA_COLORS.firstOrNull { it.first == c }?.second ?: Color(0xFF151515)
 
 @Composable
-fun FiestaScreen(lan: Boolean = false) {
+fun FiestaScreen(lan: Boolean = false, hotseat: Boolean = false) {
     val context = LocalContext.current
     val activity = context as? Activity
     val palette = LocalPalette.current
     val isLan = lan && LanSession.role != "none"
+    val localHotseat = hotseat && !isLan
     val mySeat = if (isLan) LanSession.mySeat else 0
     val playersCount = if (isLan) LanSession.players.coerceIn(2, 4) else GameConfig.fiestaPlayers
     val target = GameConfig.fiestaTarget
@@ -75,24 +76,32 @@ fun FiestaScreen(lan: Boolean = false) {
     val youLabel = stringResource(R.string.you)
     val hostLabel = stringResource(R.string.host)
     val guestLabel = stringResource(R.string.guest)
-    val names = remember(LanSession.hostName, LanSession.guestName, isLan, youLabel, hostLabel, guestLabel) {
+    val playerLabels = (1..playersCount).map { stringResource(R.string.player_number, it) }
+    val names = remember(LanSession.hostName, LanSession.guestName, isLan, youLabel, hostLabel, guestLabel, localHotseat, playersCount, playerLabels) {
         val list = mutableListOf<String>()
         if (isLan) {
             list += LanSession.hostName.takeIf { it.isNotBlank() && it != "Anfitrión" } ?: hostLabel
             list += LanSession.guestName.takeIf { it.isNotBlank() && it != "Invitado" } ?: guestLabel
+        } else if (localHotseat) {
+            list += playerLabels
         } else list += youLabel
         while (list.size < playersCount) list += "Bot ${list.size}"
         list
     }
-    val botSeats = remember(isLan, playersCount) {
-        if (isLan) emptySet() else (1 until playersCount).toSet()
+    val botSeats = remember(isLan, playersCount, localHotseat) {
+        when {
+            isLan -> emptySet()
+            localHotseat -> emptySet()
+            else -> (1 until playersCount).toSet()
+        }
     }
-    val game = remember(seed, restart, playersCount, target) {
+    val game = remember(seed, restart, playersCount, target, localHotseat) {
         FiestaGame(names, botSeats, seed + restart * 71L, target)
     }
+    val activeSeat = if (localHotseat) game.current else mySeat
     val isHost = !isLan || LanSession.role == "host"
-    val myHand = game.hands.getOrNull(mySeat).orEmpty()
-    val canAct = game.phase == FiestaPhase.PLAYING && game.current == mySeat
+    val myHand = game.hands.getOrNull(activeSeat).orEmpty()
+    val canAct = game.phase == FiestaPhase.PLAYING && game.current == activeSeat
 
     fun applyLocal(action: String, block: () -> Unit) {
         block()
@@ -180,7 +189,7 @@ fun FiestaScreen(lan: Boolean = false) {
             }
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                StatChip("🎯 ${game.scores[mySeat]}", color = palette.accent)
+                StatChip("🎯 ${game.scores[activeSeat]}", color = palette.accent)
                 Spacer(Modifier.width(6.dp))
                 StatChip("🏆 $target", color = palette.accent2)
                 Spacer(Modifier.width(6.dp))
@@ -191,11 +200,11 @@ fun FiestaScreen(lan: Boolean = false) {
             Text(
                 when {
                     game.phase == FiestaPhase.OVER -> stringResource(R.string.game_over)
-                    game.current == mySeat -> stringResource(R.string.your_turn)
+                    game.current == activeSeat && !localHotseat -> stringResource(R.string.your_turn)
                     else -> stringResource(R.string.turn_of, names.getOrElse(game.current) { "" })
                 },
                 style = MaterialTheme.typography.titleMedium,
-                color = if (game.current == mySeat) palette.accent else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f)
+                color = if (game.current == activeSeat) palette.accent else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f)
             )
             Spacer(Modifier.height(4.dp))
             Text(
@@ -375,7 +384,7 @@ fun FiestaScreen(lan: Boolean = false) {
         )
     }
 
-    if (game.phase == FiestaPhase.OVER && game.winner == mySeat) {
+    if (game.phase == FiestaPhase.OVER && game.winner >= 0) {
         // celebration handled by overlay
     }
     if (showRules) {

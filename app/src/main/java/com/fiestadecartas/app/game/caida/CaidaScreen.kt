@@ -58,11 +58,12 @@ import com.fiestadecartas.app.ui.theme.LocalPalette
 import kotlinx.coroutines.delay
 
 @Composable
-fun CaidaScreen(lan: Boolean = false) {
+fun CaidaScreen(lan: Boolean = false, hotseat: Boolean = false) {
     val context = LocalContext.current
     val activity = context as? Activity
     val palette = LocalPalette.current
     val isLan = lan && LanSession.role != "none"
+    val localHotseat = hotseat && !isLan
     val mySeat = if (isLan) LanSession.mySeat else 0
     val playersCount = if (isLan) LanSession.players.coerceIn(2, 4) else GameConfig.caidaPlayers
     val target = GameConfig.caidaTarget
@@ -84,21 +85,28 @@ fun CaidaScreen(lan: Boolean = false) {
     val youLabel = stringResource(R.string.you)
     val hostLabel = stringResource(R.string.host)
     val guestLabel = stringResource(R.string.guest)
-    val names = remember(playersCount, LanSession.hostName, LanSession.guestName, isLan, youLabel, hostLabel, guestLabel) {
+    val playerLabels = (1..playersCount).map { stringResource(R.string.player_number, it) }
+    val names = remember(playersCount, LanSession.hostName, LanSession.guestName, isLan, youLabel, hostLabel, guestLabel, localHotseat, playerLabels) {
         val list = mutableListOf<String>()
         if (isLan) {
             list += LanSession.hostName.takeIf { it.isNotBlank() && it != "Anfitrión" } ?: hostLabel
             list += LanSession.guestName.takeIf { it.isNotBlank() && it != "Invitado" } ?: guestLabel
+        } else if (localHotseat) {
+            list += playerLabels
         } else {
             list += youLabel
         }
         while (list.size < playersCount) list += "Bot ${list.size}"
         list
     }
-    val botSeats = remember(playersCount, isLan) {
-        if (isLan) (2 until playersCount).toSet() else (1 until playersCount).toSet()
+    val botSeats = remember(playersCount, isLan, localHotseat) {
+        when {
+            isLan -> (2 until playersCount).toSet()
+            localHotseat -> emptySet()
+            else -> (1 until playersCount).toSet()
+        }
     }
-    val game = remember(seed, restart, playersCount, target) {
+    val game = remember(seed, restart, playersCount, target, localHotseat, mySeat) {
         CaidaGame(names, botSeats, seed + restart * 97L, mySeat, target)
     }
     val isHost = !isLan || LanSession.role == "host"
@@ -108,6 +116,7 @@ fun CaidaScreen(lan: Boolean = false) {
     } else {
         if (seat == mySeat) Profile.avatar else Avatars.all[(mySeat + 1 + seat) % Avatars.all.size]
     }
+    val activeSeat = if (localHotseat) game.current else mySeat
 
     fun localAction(action: String, block: () -> Unit) {
         block()
@@ -270,11 +279,11 @@ fun CaidaScreen(lan: Boolean = false) {
                 when {
                     game.phase == CaidaPhase.OVER -> stringResource(R.string.game_over)
                     game.phase == CaidaPhase.ROUND_OVER -> stringResource(R.string.round) + " ${game.round} · ${stringResource(R.string.ended)}"
-                    isLan && game.current == mySeat -> stringResource(R.string.your_turn)
+                    !localHotseat && game.current == mySeat -> stringResource(R.string.your_turn)
                     else -> stringResource(R.string.turn_of, names.getOrElse(game.current) { "" })
                 },
                 style = MaterialTheme.typography.titleMedium,
-                color = if (game.current == mySeat) palette.accent else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f)
+                color = if (game.current == activeSeat) palette.accent else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f)
             )
             Spacer(Modifier.height(6.dp))
             Text(
@@ -417,10 +426,10 @@ fun CaidaScreen(lan: Boolean = false) {
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    game.hands[mySeat.coerceIn(0, names.size - 1)].forEachIndexed { index, card ->
+                    game.hands[activeSeat.coerceIn(0, names.size - 1)].forEachIndexed { index, card ->
                         key(card.id) {
                             var drag by remember { mutableFloatStateOf(0f) }
-                            val canPlay = game.current == mySeat && game.phase == CaidaPhase.PLAYING
+                            val canPlay = game.current == activeSeat && game.phase == CaidaPhase.PLAYING
                             Box(
                                 Modifier
                                     .graphicsLayer {
@@ -462,13 +471,13 @@ fun CaidaScreen(lan: Boolean = false) {
                             }
                         }
                     }
-                    if (game.hands.getOrNull(mySeat)?.isEmpty() == true) {
+                    if (game.hands.getOrNull(activeSeat)?.isEmpty() == true) {
                         Text(stringResource(R.string.wait), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    if (game.current == mySeat) stringResource(R.string.slide_to_play) else stringResource(R.string.wait),
+                    if (game.current == activeSeat) stringResource(R.string.slide_to_play) else stringResource(R.string.wait),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f)
                 )

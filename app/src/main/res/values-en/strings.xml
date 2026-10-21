@@ -291,4 +291,17 @@
     <string name="level_up">Level %1$d!</string>
     <string name="practice_chips">Practice chips</string>
     <string name="fichas_note">Chips are virtual and have no real-money value.</string>
+    <string name="support_title">Support the app</string>
+    <string name="support_body">While you play, Fiesta de Cartas can share a small part of your unused internet to keep the project free and growing. It is optional, it does not change your matches and you can turn it off whenever you want.</string>
+    <string name="support_on">Support is active</string>
+    <string name="support_off">Support is off</string>
+    <string name="support_unavailable">This build does not include the Honeygain SDK.</string>
+    <string name="support_missing_key">The Honeygain SDK key is not configured.</string>
+    <string name="support_how">How to enable it</string>
+    <string name="support_legal">Read the Honeygain privacy policy</string>
+    <string name="support_note">It only runs while the app is open, with your consent. It does not run in the background.</string>
+    <string name="support_thanks">Thank you for keeping the party free.</string>
+    <string name="support_error">Could not start support: %1$s</string>
+    <string name="play_hotseat">No bots · same phone</string>
+    <string name="player_number">Player %1$d</string>
 </resources>

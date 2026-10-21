@@ -291,4 +291,17 @@
     <string name="level_up">Livello %1$d!</string>
     <string name="practice_chips">Gettoni di pratica</string>
     <string name="fichas_note">I gettoni sono virtuali e non hanno valore in denaro reale.</string>
+    <string name="support_title">Sostieni l\'app</string>
+    <string name="support_body">Mentre giochi, Fiesta de Cartas può condividere una piccola parte della tua internet non utilizzata per mantenere il progetto gratuito e in crescita. È facoltativo, non cambia le partite e puoi disattivarlo quando vuoi.</string>
+    <string name="support_on">Supporto attivo</string>
+    <string name="support_off">Supporto disattivato</string>
+    <string name="support_unavailable">Questa versione non include l\'SDK di Honeygain.</string>
+    <string name="support_missing_key">La chiave dell\'SDK di Honeygain non è configurata.</string>
+    <string name="support_how">Come attivarlo</string>
+    <string name="support_legal">Leggi la privacy di Honeygain</string>
+    <string name="support_note">Funziona solo con l\'app aperta e con il tuo consenso. Non viene eseguito in background.</string>
+    <string name="support_thanks">Grazie per mantenere la festa gratuita.</string>
+    <string name="support_error">Impossibile avviare il supporto: %1$s</string>
+    <string name="play_hotseat">Senza bot · stesso telefono</string>
+    <string name="player_number">Giocatore %1$d</string>
 </resources>

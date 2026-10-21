@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -55,73 +56,320 @@ fun SpanishCardView(
     onClick: (() -> Unit)? = null
 ) {
     val clickMod = if (onClick != null) Modifier.clickable { onClick() } else Modifier
+    val shape = RoundedCornerShape((width.value * 0.10f).dp)
     Box(
         modifier
             .width(width)
-            .aspectRatio(0.68f)
-            .clip(RoundedCornerShape((width.value * 0.10f).dp))
+            .aspectRatio(0.66f)
+            .shadow(if (highlighted) 12.dp else 5.dp, shape, clip = false)
+            .clip(shape)
             .then(clickMod)
     ) {
         if (!faceUp || card == null) SpanishCardBack(width)
-        else {
-            val suit = card.suit
-            Box(
-                Modifier.fillMaxSize()
-                    .background(
-                        Brush.linearGradient(listOf(CardCream, Color(0xFFFFEBC7)))
-                    )
-                    .border(
-                        if (highlighted) 3.dp else 1.5.dp,
-                        if (highlighted) MaterialTheme.colorScheme.primary else suit.color.copy(alpha = 0.55f),
-                        RoundedCornerShape((width.value * 0.10f).dp)
-                    )
-                    .padding((width.value * 0.08f).dp)
-            ) {
-                Box(Modifier.fillMaxSize().border(0.8.dp, suit.color.copy(alpha = 0.35f), RoundedCornerShape(6.dp)))
-                Text(
-                    "${card.rank}",
-                    color = suit.color,
-                    fontSize = (width.value * 0.22f).sp,
-                    fontWeight = FontWeight.Black,
-                    fontFamily = FontFamily.Serif,
-                    modifier = Modifier.align(Alignment.TopStart).padding(start = 3.dp, top = 1.dp)
+        else SpanishCardFace(card, width, highlighted)
+    }
+}
+
+@Composable
+private fun SpanishCardFace(card: SpanishCard, width: Dp, highlighted: Boolean) {
+    val suit = card.suit
+    val shape = RoundedCornerShape((width.value * 0.10f).dp)
+    Box(
+        Modifier.fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color(0xFFFFFBF0), Color(0xFFFFF1D4), Color(0xFFF6E3BC))
                 )
-                Text(
-                    "${card.rank}",
-                    color = suit.color,
-                    fontSize = (width.value * 0.22f).sp,
-                    fontWeight = FontWeight.Black,
-                    fontFamily = FontFamily.Serif,
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(end = 3.dp, bottom = 1.dp).rotate(180f)
+            )
+            .border(
+                if (highlighted) 3.dp else 2.dp,
+                if (highlighted) MaterialTheme.colorScheme.primary else suit.color.copy(alpha = 0.72f),
+                shape
+            )
+            .padding((width.value * 0.075f).dp)
+    ) {
+        Canvas(Modifier.fillMaxSize()) {
+            val w = size.width
+            val h = size.height
+            // Aged paper grain: deterministic, cheap and never random per frame.
+            repeat(34) { i ->
+                val x = ((i * 43 + 11) % 100) / 100f * w
+                val y = ((i * 67 + 7) % 100) / 100f * h
+                drawCircle(
+                    Color(0xFF8A6A3D).copy(alpha = 0.035f),
+                    radius = 0.8f + (i % 3) * 0.5f,
+                    center = Offset(x, y)
                 )
-                Box(Modifier.align(Alignment.Center).fillMaxSize(0.58f)) {
-                    Canvas(Modifier.fillMaxSize()) { drawSuit(suit, card.rank) }
-                }
-                Canvas(
-                    Modifier.align(Alignment.TopStart)
-                        .padding(start = 5.dp, top = (width.value * 0.27f).dp)
-                        .size((width.value * 0.15f).dp)
-                ) { drawSuit(suit, card.rank) }
-                Canvas(
-                    Modifier.align(Alignment.BottomEnd)
-                        .padding(end = 5.dp, bottom = (width.value * 0.16f).dp)
-                        .size((width.value * 0.15f).dp)
-                        .rotate(180f)
-                ) { drawSuit(suit, card.rank) }
-                if (card.rank >= 10) {
-                    Text(
-                        when (card.rank) { 10 -> "SOTA"; 11 -> "CABALLO"; else -> "REY" },
-                        color = suit.color.copy(alpha = 0.85f),
-                        fontSize = (width.value * 0.085f).sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.5.sp,
-                        modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 4.dp)
-                    )
-                }
             }
+            drawRoundRect(
+                CardGold.copy(alpha = 0.42f),
+                topLeft = Offset(3f, 3f),
+                size = Size(w - 6f, h - 6f),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(7f),
+                style = Stroke(width = 1.1f)
+            )
+            // Filigree corners.
+            val corner = w * 0.12f
+            listOf(
+                Offset(4f, 4f) to 1f,
+                Offset(w - 4f, 4f) to -1f,
+                Offset(4f, h - 4f) to 1f,
+                Offset(w - 4f, h - 4f) to -1f
+            ).forEach { (origin, dir) ->
+                drawArc(
+                    suit.color.copy(alpha = 0.30f),
+                    startAngle = if (dir > 0) 0f else 90f,
+                    sweepAngle = 90f,
+                    useCenter = false,
+                    topLeft = Offset(origin.x - (if (dir > 0) 0f else corner), origin.y - (if (dir > 0) 0f else corner)),
+                    size = Size(corner, corner),
+                    style = Stroke(width = 1f)
+                )
+            }
+        }
+
+        Text(
+            "${card.rank}",
+            color = suit.color,
+            fontSize = (width.value * 0.21f).sp,
+            fontWeight = FontWeight.Black,
+            fontFamily = FontFamily.Serif,
+            modifier = Modifier.align(Alignment.TopStart).padding(start = 2.dp, top = 0.dp)
+        )
+        Text(
+            "${card.rank}",
+            color = suit.color,
+            fontSize = (width.value * 0.21f).sp,
+            fontWeight = FontWeight.Black,
+            fontFamily = FontFamily.Serif,
+            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 2.dp, bottom = 0.dp).rotate(180f)
+        )
+
+        Canvas(Modifier.fillMaxSize()) {
+            val w = size.width
+            val h = size.height
+            if (card.rank >= 10) {
+                drawCourt(suit, card.rank, Offset(w * 0.5f, h * 0.51f), w * 0.76f)
+            } else {
+                drawPips(suit, card.rank, w, h)
+            }
+        }
+
+        Canvas(
+            Modifier.align(Alignment.TopStart)
+                .padding(start = 4.dp, top = (width.value * 0.26f).dp)
+                .size((width.value * 0.14f).dp)
+        ) { drawSuit(suit, card.rank, crown = false) }
+        Canvas(
+            Modifier.align(Alignment.BottomEnd)
+                .padding(end = 4.dp, bottom = (width.value * 0.16f).dp)
+                .size((width.value * 0.14f).dp)
+                .rotate(180f)
+        ) { drawSuit(suit, card.rank, crown = false) }
+
+        if (card.rank >= 10) {
+            Text(
+                when (card.rank) { 10 -> "SOTA"; 11 -> "CABALLO"; else -> "REY" },
+                color = suit.color.copy(alpha = 0.9f),
+                fontSize = (width.value * 0.072f).sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.6.sp,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 2.dp)
+            )
         }
     }
 }
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPips(
+    suit: SpanishSuit,
+    rank: Int,
+    w: Float,
+    h: Float
+) {
+    val left = w * 0.30f
+    val right = w * 0.70f
+    val mid = w * 0.50f
+    val top = h * 0.30f
+    val centerY = h * 0.51f
+    val bottom = h * 0.72f
+    val unit = w * 0.19f
+    val positions: List<Pair<Float, Float>> = when (rank) {
+        1 -> listOf(mid to centerY)
+        2 -> listOf(mid to top, mid to bottom)
+        3 -> listOf(mid to top, mid to centerY, mid to bottom)
+        4 -> listOf(left to top, right to top, left to bottom, right to bottom)
+        5 -> listOf(left to top, right to top, mid to centerY, left to bottom, right to bottom)
+        6 -> listOf(left to top, right to top, left to centerY, right to centerY, left to bottom, right to bottom)
+        7 -> listOf(left to top, right to top, left to centerY, right to centerY, left to bottom, right to bottom, mid to (h * 0.42f))
+        else -> listOf(mid to centerY)
+    }
+    val scale = if (rank == 1) unit * 1.75f else unit
+    positions.forEach { (x, y) ->
+        drawSuit(suit, rank, at = Offset(x, y), unit = scale, crown = false)
+    }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCourt(
+    suit: SpanishSuit,
+    rank: Int,
+    center: Offset,
+    unit: Float
+) {
+    val c = center
+    val ink = Color(0xFF241A12)
+    val skin = Color(0xFFE8C39E)
+    val gold = Color(0xFFD8A93B)
+    val robe = when (suit) {
+        SpanishSuit.OROS -> Color(0xFF7A4E12)
+        SpanishSuit.COPAS -> Color(0xFF8E1B2E)
+        SpanishSuit.ESPADAS -> Color(0xFF1D3557)
+        SpanishSuit.BASTOS -> Color(0xFF1F5A38)
+    }
+
+    // Robe / shoulders.
+    val robePath = Path().apply {
+        moveTo(c.x - unit * 0.34f, c.y + unit * 0.48f)
+        cubicTo(
+            c.x - unit * 0.30f, c.y + unit * 0.14f,
+            c.x - unit * 0.12f, c.y + unit * 0.06f,
+            c.x, c.y + unit * 0.06f
+        )
+        cubicTo(
+            c.x + unit * 0.12f, c.y + unit * 0.06f,
+            c.x + unit * 0.30f, c.y + unit * 0.14f,
+            c.x + unit * 0.34f, c.y + unit * 0.48f
+        )
+        close()
+    }
+    drawPath(robePath, robe)
+    drawPath(robePath, gold.copy(alpha = 0.35f), style = Stroke(unit * 0.02f))
+
+    // Neck and head.
+    drawRoundRect(
+        skin,
+        topLeft = Offset(c.x - unit * 0.045f, c.y - unit * 0.10f),
+        size = Size(unit * 0.09f, unit * 0.12f)
+    )
+    drawCircle(skin, unit * 0.145f, Offset(c.x, c.y - unit * 0.18f))
+    drawCircle(ink.copy(alpha = 0.75f), unit * 0.145f, Offset(c.x, c.y - unit * 0.18f), style = Stroke(unit * 0.012f))
+
+    when (rank) {
+        12 -> {
+            // Crown.
+            val crownY = c.y - unit * 0.34f
+            val crown = Path().apply {
+                moveTo(c.x - unit * 0.20f, crownY + unit * 0.08f)
+                lineTo(c.x - unit * 0.16f, crownY - unit * 0.07f)
+                lineTo(c.x - unit * 0.05f, crownY + unit * 0.01f)
+                lineTo(c.x, crownY - unit * 0.12f)
+                lineTo(c.x + unit * 0.05f, crownY + unit * 0.01f)
+                lineTo(c.x + unit * 0.16f, crownY - unit * 0.07f)
+                lineTo(c.x + unit * 0.20f, crownY + unit * 0.08f)
+                close()
+            }
+            drawPath(crown, gold)
+            drawCircle(Color(0xFFE63946), unit * 0.022f, Offset(c.x, crownY - unit * 0.01f))
+            // Beard.
+            val beard = Path().apply {
+                moveTo(c.x - unit * 0.10f, c.y - unit * 0.13f)
+                quadraticBezierTo(c.x, c.y + unit * 0.06f, c.x + unit * 0.10f, c.y - unit * 0.13f)
+                close()
+            }
+            drawPath(beard, Color(0xFFEDE3D0))
+        }
+        11 -> {
+            // Horse head in profile with bridle.
+            val horse = Path().apply {
+                moveTo(c.x - unit * 0.22f, c.y + unit * 0.30f)
+                lineTo(c.x - unit * 0.12f, c.y - unit * 0.06f)
+                lineTo(c.x - unit * 0.20f, c.y - unit * 0.24f)
+                lineTo(c.x - unit * 0.07f, c.y - unit * 0.22f)
+                lineTo(c.x + unit * 0.02f, c.y - unit * 0.34f)
+                lineTo(c.x + unit * 0.08f, c.y - unit * 0.18f)
+                cubicTo(
+                    c.x + unit * 0.32f, c.y - unit * 0.10f,
+                    c.x + unit * 0.30f, c.y + unit * 0.10f,
+                    c.x + unit * 0.12f, c.y + unit * 0.18f
+                )
+                lineTo(c.x + unit * 0.20f, c.y + unit * 0.34f)
+                close()
+            }
+            drawPath(horse, Color(0xFF8B5A2B))
+            drawPath(horse, ink.copy(alpha = 0.5f), style = Stroke(unit * 0.015f))
+            drawCircle(ink, unit * 0.018f, Offset(c.x + unit * 0.06f, c.y - unit * 0.12f))
+            drawLine(gold, Offset(c.x + unit * 0.04f, c.y - unit * 0.05f), Offset(c.x + unit * 0.20f, c.y + unit * 0.06f), unit * 0.02f)
+            drawLine(gold, Offset(c.x - unit * 0.12f, c.y + unit * 0.02f), Offset(c.x + unit * 0.14f, c.y + unit * 0.01f), unit * 0.018f)
+            // Mane.
+            repeat(4) { i ->
+                drawLine(
+                    ink.copy(alpha = 0.7f),
+                    Offset(c.x - unit * 0.08f + i * unit * 0.02f, c.y - unit * 0.25f),
+                    Offset(c.x - unit * 0.12f + i * unit * 0.02f, c.y - unit * 0.32f),
+                    unit * 0.018f
+                )
+            }
+        }
+        else -> {
+            // Page / jack with a feathered cap and collar.
+            val cap = Path().apply {
+                moveTo(c.x - unit * 0.18f, c.y - unit * 0.28f)
+                quadraticBezierTo(c.x, c.y - unit * 0.44f, c.x + unit * 0.18f, c.y - unit * 0.28f)
+                lineTo(c.x + unit * 0.12f, c.y - unit * 0.20f)
+                lineTo(c.x - unit * 0.12f, c.y - unit * 0.20f)
+                close()
+            }
+            drawPath(cap, robe)
+            drawPath(cap, gold.copy(alpha = 0.5f), style = Stroke(unit * 0.012f))
+            drawLine(gold, Offset(c.x + unit * 0.12f, c.y - unit * 0.30f), Offset(c.x + unit * 0.27f, c.y - unit * 0.42f), unit * 0.018f)
+            drawOval(Color(0xFF2A9D8F), topLeft = Offset(c.x + unit * 0.22f, c.y - unit * 0.46f), size = Size(unit * 0.10f, unit * 0.05f))
+            // Collar.
+            drawRoundRect(
+                creamColor(),
+                topLeft = Offset(c.x - unit * 0.12f, c.y - unit * 0.02f),
+                size = Size(unit * 0.24f, unit * 0.07f),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(unit * 0.03f)
+            )
+        }
+    }
+
+    // Chest emblem.
+    drawSuit(suit, rank, at = Offset(c.x, c.y + unit * 0.27f), unit = unit * 0.16f, crown = false)
+    // Halo line behind the figure.
+    drawCircle(gold.copy(alpha = 0.22f), unit * 0.40f, c, style = Stroke(unit * 0.012f))
+}
+
+@Composable
+fun CoinView(modifier: Modifier = Modifier, size: Dp = 40.dp) {
+    Canvas(modifier.size(size)) {
+        val r = this.size.minDimension / 2f
+        val c = center
+        drawCircle(Color(0xFF8A5A12), r, c)
+        drawCircle(
+            Brush.radialGradient(
+                listOf(Color(0xFFFFF3B0), Color(0xFFFFC93C), Color(0xFFD18B0B)),
+                center = Offset(c.x - r * 0.25f, c.y - r * 0.3f),
+                radius = r * 1.3f
+            ),
+            r * 0.92f,
+            c
+        )
+        drawCircle(Color(0xFFFFF0A8).copy(alpha = 0.65f), r * 0.78f, c, style = Stroke(r * 0.06f))
+        val star = Path().apply {
+            for (i in 0 until 10) {
+                val angle = (-90 + i * 36) * Math.PI / 180
+                val radius = if (i % 2 == 0) r * 0.48f else r * 0.22f
+                val x = c.x + (kotlin.math.cos(angle) * radius).toFloat()
+                val y = c.y + (kotlin.math.sin(angle) * radius).toFloat()
+                if (i == 0) moveTo(x, y) else lineTo(x, y)
+            }
+            close()
+        }
+        drawPath(star, Color(0xFF7A4E12).copy(alpha = 0.8f))
+        drawCircle(Color.White.copy(alpha = 0.35f), r * 0.16f, Offset(c.x - r * 0.3f, c.y - r * 0.38f))
+    }
+}
+
+private fun creamColor(): Color = Color(0xFFFFF6E2)
 
 @Composable
 fun SpanishCardBack(width: Dp = 76.dp) {
@@ -160,10 +408,16 @@ fun SpanishCardBack(width: Dp = 76.dp) {
     }
 }
 
-private fun DrawScope.drawSuit(suit: SpanishSuit, rank: Int) {
-    val w = size.width
-    val h = size.height
-    val c = center
+private fun DrawScope.drawSuit(
+    suit: SpanishSuit,
+    rank: Int,
+    at: Offset = center,
+    unit: Float = size.minDimension,
+    crown: Boolean = true
+) {
+    val w = unit
+    val h = unit
+    val c = at
     val color = suit.color
     when (suit) {
         SpanishSuit.OROS -> {
@@ -216,7 +470,7 @@ private fun DrawScope.drawSuit(suit: SpanishSuit, rank: Int) {
             drawCircle(color.copy(alpha = 0.6f), radius = w * 0.30f, center = c, style = Stroke(width = 2f))
         }
     }
-    if (rank >= 10) {
+    if (crown && rank >= 10) {
         val crownY = c.y - h * 0.40f
         val crown = Path().apply {
             moveTo(c.x - w * 0.20f, crownY + h * 0.08f)
@@ -243,7 +497,11 @@ fun FiestaCardView(
 ) {
     val clickMod = if (onClick != null) Modifier.clickable { onClick() } else Modifier
     val shape = RoundedCornerShape((width.value * 0.14f).dp)
-    Box(modifier.width(width).aspectRatio(0.66f).clip(shape).then(clickMod)) {
+    Box(
+        modifier.width(width).aspectRatio(0.66f)
+            .shadow(if (highlighted) 10.dp else 5.dp, shape, clip = false)
+            .clip(shape).then(clickMod)
+    ) {
         if (!faceUp || card == null) {
             Box(
                 Modifier.fillMaxSize().background(Brush.linearGradient(listOf(Color(0xFF191919), Color(0xFF3A0A12))))
@@ -283,6 +541,16 @@ fun FiestaCardView(
                     Color.White.copy(alpha = if (card.color == FiestaColor.WILD) 0.94f else 0.92f),
                     topLeft = Offset(size.width * 0.10f, size.height * 0.14f),
                     size = Size(size.width * 0.80f, size.height * 0.72f)
+                )
+                drawOval(
+                    Color.White.copy(alpha = 0.18f),
+                    topLeft = Offset(size.width * 0.16f, size.height * 0.18f),
+                    size = Size(size.width * 0.28f, size.height * 0.18f)
+                )
+                drawCircle(
+                    Color.White.copy(alpha = 0.22f),
+                    radius = size.width * 0.035f,
+                    center = Offset(size.width * 0.78f, size.height * 0.22f)
                 )
             }
             val centerLabel = when (card.kind) {
@@ -416,8 +684,13 @@ fun DiceView(value: Int, modifier: Modifier = Modifier, size: Dp = 76.dp, rollin
     Box(
         modifier.size(size).rotate(rotation)
             .scale(if (rolling) bounce else 1f)
+            .shadow(6.dp, RoundedCornerShape((size.value * 0.22f).dp), clip = false)
             .clip(RoundedCornerShape((size.value * 0.22f).dp))
-            .background(Brush.linearGradient(listOf(Color(0xFFFFFBF0), Color(0xFFF0E2C8))))
+            .background(
+                Brush.radialGradient(
+                    listOf(Color(0xFFFFFFFF), Color(0xFFF7ECD8), Color(0xFFE2CFAC))
+                )
+            )
             .border(2.dp, Color(0xFFD8A93B), RoundedCornerShape((size.value * 0.22f).dp)),
         contentAlignment = Alignment.Center
     ) {

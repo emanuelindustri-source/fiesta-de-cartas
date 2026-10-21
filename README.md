@@ -39,6 +39,11 @@ También incluye:
 - **10 avatares originales** inspirados en la fauna venezolana (turpial, guacamaya, jaguar, caimán, delfín, tortuga, mono, flamenco, mariposa y ardilla). Se eligen en el Perfil y reaccionan durante las partidas.
 - **Reglas configurables** antes de cada partida: número de jugadores y puntos objetivo en Caída y Fiesta de Colores, fichas para ganar en Ludo y cartas iniciales en Nervioso.
 - **Animaciones de mesa**: reparto carta por carta, carta que vuela hacia la mesa, mesa que tiembla en una caída, avatares que reaccionan y sonido/vibración. En Caída también se puede **deslizar la carta hacia arriba** para jugarla.
+- **Temporadas en toda la app**: octubre se vive como Halloween en el fondo, los menús, los títulos, las partículas, los sonidos y los textos. Navidad, Reyes, San Valentín, Pascua y Semana Santa tienen su propia escena y ambiente sonoro.
+- **Arte renovado**: baraja española con papel envejecido, esquinas ornamentadas, pips reales y figuras de Rey, Caballo y Sota; cartas de colores con brillo, dado 3D, tablero de Ludo con marco de madera, estrellas y fichas con volumen, y monedas dibujadas.
+- **Sonido ambiental por temporada** y efectos de reparto, golpe, canto, dado, victoria y moneda. Se apaga desde Ajustes.
+- **Modo sin bots** (pasar el teléfono) en los cinco juegos, además de bots y WiFi.
+- **Apoyo opcional con Honeygain**: solo si el usuario acepta, comparte ancho de banda mientras juega; se puede desactivar y nunca corre en segundo plano. Requiere descargar la AAR y configurar la clave (ver `docs/HONEYGAIN.md`).
 - **Calificar la app** desde Perfil o Ajustes: estrellas, categorías y comentario que se envían por correo a `emanuel.industri@gmail.com` usando la app de correo del teléfono.
 - **Detección de dispositivo** (teléfono, tablet, TV o doble pantalla) y diseño adaptable; en TV se puede navegar con el mando.
 - **Ajustes**: idioma, tema/temporada, color dinámico según el fondo de pantalla, sonido, vibración, estadísticas y privacidad.
@@ -47,11 +52,11 @@ También incluye:
 
 - Ruta: `app/build/outputs/apk/release/app-release.apk`
 - Paquete: `com.fiestadecartas.app`
-- Versión: `1.1.0` (versionCode 2)
+- Versión: `1.2.0` (versionCode 3)
 - Compatible con Android 7.0 o superior (API 24+); probada en Android 14 (API 34).
 - Firma: certificado de producción `CN=Fiesta de Cartas`, creado con el keystore `fiesta-release.jks`.
-- SHA-256 del APK: `8759ECC39BF2135EDE11A268B471E8027F58C75EC903FB23A6ACD14B18524C93`
-- Tamaño: 34.735.018 bytes (34,7 MB).
+- SHA-256 del APK: `A84F9008F0A9672B6E6A9BD428263FC47839BD994F7744518E6F09657E107D2F`
+- Tamaño: 37.151.678 bytes (37,2 MB).
 
 ### Instalar en un teléfono
 
@@ -87,8 +92,8 @@ Notas:
 Detalles del modo WiFi:
 
 - El anfitrión es la autoridad de la partida; las acciones se sincronizan por la red y los bots los ejecuta el anfitrión.
-- Hay soporte para **un invitado por sala**; el resto de asientos se completan con bots (Ludo: 4 jugadores; Caída y Fiesta: según las reglas configuradas, de 2 a 4).
-- Kemix y Nervioso son por ahora solo contra bots.
+- Hay soporte para **un invitado por sala**; el resto de asientos se completan con bots (Ludo: 4 jugadores; Caída y Fiesta: según las reglas configuradas, de 2 a 4; Kemix y Nervioso: 4).
+- Todos los juegos tienen modo WiFi, modo contra bots y modo sin bots en el mismo teléfono.
 - Si se pierde la conexión, el invitado vuelve al inicio con un aviso.
 - Probado en Android 14 con dos dispositivos: invitado conectado, inicio de partida, acciones del invitado al anfitrión y del anfitrión al invitado. Las acciones de red ya no se ejecutan en el hilo de la interfaz.
 
@@ -128,6 +133,23 @@ pantalla y adapta el ancho del contenido. En televisores, el primer juego recibe
 foco para poder navegar con el mando (D-pad) además del toque. La información del
 dispositivo aparece en **Ajustes → Apariencia**.
 
+## Apoyo opcional con Honeygain
+
+La app tiene una tarjeta **Ajustes → Apoyar la app** para que el usuario decida si
+quiere compartir ancho de banda sin usar mientras juega. Está desactivada por
+defecto, usa el consentimiento oficial de Honeygain y solo corre con la app abierta.
+La integración está en `data/HoneygainSupport.kt`.
+
+El SDK es propietario y **no se incluye en el repositorio**. Para activarlo:
+
+1. Descarga `hgsdk.aar` desde el panel de Honeygain y colócalo en `app/libs/`.
+2. Añade `honeygain.apiKey=...` a `local.properties` (ignorado).
+3. Recompila la APK.
+
+Sin esos dos pasos la tarjeta muestra “SDK no disponible” y el resto de la app
+funciona igual. Honeygain no permite su SDK en apps de Google Play. Guía completa:
+[`docs/HONEYGAIN.md`](docs/HONEYGAIN.md).
+
 ## Dinero real: estado actual
 
 La app **no mueve dinero real**. Las fichas son de práctica y no se pueden comprar
@@ -145,7 +167,12 @@ de las políticas de Google Play.
 
 ## Publicidad y AdMob
 
-La app incluye AdMob con **IDs de prueba de Google**. Los IDs de prueba **no generan ingresos** y deben sustituirse antes de publicar:
+La app incluye AdMob con **IDs de prueba de Google**. La cuenta de AdMob ya está
+aprobada con el ID de editor `pub-7330148989868278`; el archivo `site/app-ads.txt`
+ya contiene esa línea para cuando se use un dominio propio. Faltan los IDs de la app
+y de los bloques (se copian desde el panel de AdMob, no la contraseña).
+
+Los IDs de prueba **no generan ingresos** y deben sustituirse antes de publicar:
 
 1. Entra a [AdMob](https://admob.google.com/) con la cuenta de contacto del proyecto y crea la app `Fiesta de Cartas` (Android, paquete `com.fiestadecartas.app`).
 2. Crea un **bloque de anuncios de banner** y uno **intersticial**.
@@ -189,6 +216,7 @@ FiestaDeCartas/
 │   └── assets/              # Logo, capturas, imagen Open Graph
 ├── docs/
 │   ├── ARCHITECTURE.md      # Capas, protocolo LAN y decisiones técnicas
+│   ├── HONEYGAIN.md         # SDK opcional de ancho de banda
 │   ├── MONETIZATION.md      # Anuncios, tiendas, Honeygain y pagos
 │   └── ONLINE_ROADMAP.md    # Diseño futuro de torneos y dinero real
 ├── .github/workflows/       # CI Android, release firmada y Pages
