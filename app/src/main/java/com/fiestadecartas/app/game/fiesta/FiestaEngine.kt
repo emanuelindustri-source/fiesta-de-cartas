@@ -1,5 +1,6 @@
 package com.fiestadecartas.app.game.fiesta
 
+import com.fiestadecartas.app.data.BotDifficulty
 import com.fiestadecartas.app.game.FiestaCard
 import com.fiestadecartas.app.game.FiestaColor
 import com.fiestadecartas.app.game.FiestaKind
@@ -41,6 +42,12 @@ class FiestaGame(
         private set
     var log = mutableListOf<String>()
         private set
+    var lastPlayed: FiestaCard? = null
+        private set
+    var lastPlayedSeat = -1
+        private set
+    var eventTick = 0
+        private set
 
     init { newRound(first = true) }
 
@@ -60,6 +67,8 @@ class FiestaGame(
         direction = 1
         hasDrawn = false
         winner = -1
+        lastPlayed = null
+        lastPlayedSeat = -1
         phase = FiestaPhase.PLAYING
         log = mutableListOf()
         message = "Comienza ${names[current]}"
@@ -84,6 +93,9 @@ class FiestaGame(
         if (!playable(card)) return false
         val player = current
         hand.removeAt(idx)
+        lastPlayed = card
+        lastPlayedSeat = player
+        eventTick++
         discard += card
         if (card.color == FiestaColor.WILD) color = chosenColor ?: mostCommonColor(hand)
         else color = card.color
@@ -188,14 +200,24 @@ class FiestaGame(
         FiestaKind.WILD4 -> "+4 comodín"
     }
 
-    fun botMove(): Boolean {
+    fun botMove(difficulty: BotDifficulty = BotDifficulty.BALANCED): Boolean {
         if (phase != FiestaPhase.PLAYING || current !in botSeats) return false
         val hand = hands[current]
         val playableCards = hand.filter { playable(it) }
         if (playableCards.isEmpty()) {
             return if (!hasDrawn) drawAndMaybePass() else passTurn()
         }
-        val chosen = playableCards.maxByOrNull { c ->
+        val chosen = botChoice(playableCards, difficulty)
+        val chosenColor = if (chosen.color == FiestaColor.WILD) mostCommonColor(hand) else null
+        return play(chosen.id, chosenColor)
+    }
+
+    private fun botChoice(cards: List<FiestaCard>, difficulty: BotDifficulty): FiestaCard {
+        if (difficulty == BotDifficulty.RELAXED) return cards.random(rng)
+        val pool = if (difficulty == BotDifficulty.SHARP) {
+            cards.filter { it.color != FiestaColor.WILD }.ifEmpty { cards }
+        } else cards
+        return pool.maxByOrNull { c ->
             when {
                 c.kind == FiestaKind.WILD4 -> 30
                 c.kind == FiestaKind.WILD -> 25
@@ -204,13 +226,11 @@ class FiestaGame(
                 c.color == color -> 10 + c.number
                 else -> c.number
             }
-        } ?: playableCards.first()
-        val chosenColor = if (chosen.color == FiestaColor.WILD) mostCommonColor(hand) else null
-        return play(chosen.id, chosenColor)
+        } ?: pool.first()
     }
 
     /** Executes one bot turn and returns the wire action for LAN sync. */
-    fun botStep(): String? {
+    fun botStep(difficulty: BotDifficulty = BotDifficulty.BALANCED): String? {
         if (phase != FiestaPhase.PLAYING || current !in botSeats) return null
         val hand = hands[current]
         var playableCards = hand.filter { playable(it) }
@@ -222,16 +242,7 @@ class FiestaGame(
             drawAndMaybePass()
             return "D"
         }
-        val chosen = playableCards.maxByOrNull { c ->
-            when {
-                c.kind == FiestaKind.WILD4 -> 30
-                c.kind == FiestaKind.WILD -> 25
-                c.kind == FiestaKind.SKIP || c.kind == FiestaKind.DRAW2 -> 40
-                c.kind == FiestaKind.REVERSE -> 20
-                c.color == color -> 10 + c.number
-                else -> c.number
-            }
-        } ?: playableCards.first()
+        val chosen = botChoice(playableCards, difficulty)
         val chosenColor = if (chosen.color == FiestaColor.WILD) mostCommonColor(hand) else null
         play(chosen.id, chosenColor)
         return "P|${chosen.id}|${(chosenColor ?: FiestaColor.RED).ordinal}"

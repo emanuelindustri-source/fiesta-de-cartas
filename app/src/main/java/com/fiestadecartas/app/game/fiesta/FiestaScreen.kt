@@ -1,6 +1,9 @@
 package com.fiestadecartas.app.game.fiesta
 
 import android.app.Activity
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +31,7 @@ import com.fiestadecartas.app.R
 import com.fiestadecartas.app.Screen
 import com.fiestadecartas.app.ads.Interstitial
 import com.fiestadecartas.app.data.Avatars
+import com.fiestadecartas.app.data.BotSettings
 import com.fiestadecartas.app.data.GameConfig
 import com.fiestadecartas.app.data.Prefs
 import com.fiestadecartas.app.data.Profile
@@ -39,10 +44,13 @@ import com.fiestadecartas.app.ui.Feedback
 import com.fiestadecartas.app.ui.FiestaCardView
 import com.fiestadecartas.app.ui.GameScaffold
 import com.fiestadecartas.app.ui.GlassPanel
+import com.fiestadecartas.app.ui.MatchHistoryDialog
+import com.fiestadecartas.app.ui.MatchHistoryStrip
 import com.fiestadecartas.app.ui.PlayerBadge
 import com.fiestadecartas.app.ui.PrimaryButton
 import com.fiestadecartas.app.ui.SecondaryButton
 import com.fiestadecartas.app.ui.StatChip
+import com.fiestadecartas.app.ui.rememberMatchHistory
 import com.fiestadecartas.app.ui.theme.LocalPalette
 import kotlinx.coroutines.delay
 
@@ -98,6 +106,17 @@ fun FiestaScreen(lan: Boolean = false, hotseat: Boolean = false) {
     val game = remember(seed, restart, playersCount, target, localHotseat) {
         FiestaGame(names, botSeats, seed + restart * 71L, target)
     }
+    val history = rememberMatchHistory(game.message)
+    var showHistory by remember { mutableStateOf(false) }
+    val fly = remember { Animatable(0f) }
+    var flyCard by remember { mutableStateOf<FiestaCard?>(null) }
+    LaunchedEffect(game.eventTick) {
+        val card = game.lastPlayed ?: return@LaunchedEffect
+        flyCard = card
+        fly.snapTo(0f)
+        fly.animateTo(1f, tween(360, easing = FastOutSlowInEasing))
+        flyCard = null
+    }
     val activeSeat = if (localHotseat) game.current else mySeat
     val isHost = !isLan || LanSession.role == "host"
     val myHand = game.hands.getOrNull(activeSeat).orEmpty()
@@ -132,7 +151,7 @@ fun FiestaScreen(lan: Boolean = false, hotseat: Boolean = false) {
     LaunchedEffect(revision, game.current, game.phase) {
         if (game.phase == FiestaPhase.PLAYING && game.isBotTurn() && isHost) {
             delay(900)
-            val action = game.botStep()
+            val action = game.botStep(BotSettings.difficulty)
             if (action != null) {
                 revision++
                 if (isLan) LanSession.sendAction(action)
@@ -157,6 +176,7 @@ fun FiestaScreen(lan: Boolean = false, hotseat: Boolean = false) {
             Nav.go(Screen.Home)
         },
         actions = {
+            IconButton(onClick = { showHistory = true }) { Icon(Icons.Rounded.History, null) }
             IconButton(onClick = { showRules = true }) { Icon(Icons.Rounded.Info, null) }
             if (!isLan) {
                 IconButton(onClick = { Nav.go(Screen.Lobby("fiesta")) }) {
@@ -244,6 +264,21 @@ fun FiestaScreen(lan: Boolean = false, hotseat: Boolean = false) {
                     }
                     Box(contentAlignment = Alignment.Center) {
                         FiestaCardView(game.top(), width = 88.dp)
+                        val flying = flyCard
+                        if (flying != null) {
+                            Box(
+                                Modifier.graphicsLayer {
+                                    val t = fly.value
+                                    translationY = (1f - t) * 190.dp.toPx()
+                                    rotationZ = (1f - t) * -18f
+                                    scaleX = 1f + (1f - t) * 0.28f
+                                    scaleY = 1f + (1f - t) * 0.28f
+                                    alpha = 0.2f + t * 0.8f
+                                }
+                            ) {
+                                FiestaCardView(flying, width = 88.dp)
+                            }
+                        }
                     }
                 }
             }
@@ -334,6 +369,8 @@ fun FiestaScreen(lan: Boolean = false, hotseat: Boolean = false) {
                 }
             }
             Spacer(Modifier.height(8.dp))
+            MatchHistoryStrip(history, onOpen = { showHistory = true })
+            Spacer(Modifier.height(4.dp))
             Text(
                 game.log.lastOrNull().orEmpty(),
                 style = MaterialTheme.typography.labelSmall,
@@ -394,5 +431,8 @@ fun FiestaScreen(lan: Boolean = false, hotseat: Boolean = false) {
             text = { Text(stringResource(R.string.rules_fiesta)) },
             confirmButton = { TextButton(onClick = { showRules = false }) { Text(stringResource(R.string.got_it)) } }
         )
+    }
+    if (showHistory) {
+        MatchHistoryDialog(history, onDismiss = { showHistory = false })
     }
 }

@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import com.fiestadecartas.app.ui.theme.Festival
 import com.fiestadecartas.app.ui.theme.LocalFestival
 import com.fiestadecartas.app.ui.theme.LocalPalette
+import kotlinx.coroutines.delay
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -54,12 +56,13 @@ fun FiestaBackground(content: @Composable BoxScope.() -> Unit) {
     val palette = LocalPalette.current
     val festival = LocalFestival.current
     val dark = MaterialTheme.colorScheme.background.luminance() < 0.5f
-    val infinite = rememberInfiniteTransition(label = "season")
-    val phase by infinite.animateFloat(
-        0f, 1f,
-        infiniteRepeatable(tween(26000, easing = androidx.compose.animation.core.LinearEasing)),
-        label = "seasonPhase"
-    )
+    var phase by remember { mutableFloatStateOf(0f) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(45)
+            phase = (phase + 0.0018f) % 1f
+        }
+    }
     val emojis = when (festival.key) {
         "halloween" -> listOf("🎃", "🦇", "🌙", "💀", "🕯️")
         "christmas" -> listOf("🎄", "⭐", "🎁", "🔔", "🌟")
@@ -526,6 +529,91 @@ fun StatChip(text: String, modifier: Modifier = Modifier, color: Color? = null) 
             style = MaterialTheme.typography.labelSmall,
             color = color ?: MaterialTheme.colorScheme.primary
         )
+    }
+}
+
+@Composable
+fun BrandMark(
+    modifier: Modifier = Modifier,
+    size: Dp = 46.dp,
+    seasonal: String? = null
+) {
+    Box(modifier.size(size)) {
+        Canvas(Modifier.fillMaxSize()) {
+            val w = this.size.width
+            val h = this.size.height
+            drawRoundRect(
+                Color(0xFF0E1B2A),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(w * 0.28f)
+            )
+            drawRoundRect(
+                Color(0xFFD8A93B).copy(alpha = 0.55f),
+                topLeft = Offset(w * 0.04f, h * 0.04f),
+                size = Size(w * 0.92f, h * 0.92f),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(w * 0.25f),
+                style = Stroke(width = w * 0.025f)
+            )
+            rotate(-17f, Offset(w * 0.40f, h * 0.55f)) {
+                drawRoundRect(
+                    Color(0xFF2EC4B6),
+                    topLeft = Offset(w * 0.24f, h * 0.27f),
+                    size = Size(w * 0.24f, h * 0.47f),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(w * 0.045f)
+                )
+                drawRoundRect(
+                    Color(0xFFFFF6E2),
+                    topLeft = Offset(w * 0.28f, h * 0.31f),
+                    size = Size(w * 0.16f, h * 0.39f),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(w * 0.03f)
+                )
+            }
+            rotate(17f, Offset(w * 0.60f, h * 0.55f)) {
+                drawRoundRect(
+                    Color(0xFFE63946),
+                    topLeft = Offset(w * 0.52f, h * 0.27f),
+                    size = Size(w * 0.24f, h * 0.47f),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(w * 0.045f)
+                )
+                drawRoundRect(
+                    Color(0xFFFFF6E2),
+                    topLeft = Offset(w * 0.56f, h * 0.31f),
+                    size = Size(w * 0.16f, h * 0.39f),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(w * 0.03f)
+                )
+            }
+            drawRoundRect(
+                Color(0xFFFFB703),
+                topLeft = Offset(w * 0.35f, h * 0.20f),
+                size = Size(w * 0.30f, h * 0.60f),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(w * 0.05f)
+            )
+            drawRoundRect(
+                Color(0xFFFFF6E2),
+                topLeft = Offset(w * 0.40f, h * 0.25f),
+                size = Size(w * 0.20f, h * 0.50f),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(w * 0.035f)
+            )
+            drawCircle(Color(0xFFC9962B), radius = w * 0.09f, center = Offset(w * 0.50f, h * 0.47f))
+            drawCircle(Color(0xFFFFF6E2), radius = w * 0.045f, center = Offset(w * 0.50f, h * 0.47f))
+            val star = Path().apply {
+                for (i in 0 until 10) {
+                    val a = Math.toRadians((-90 + i * 36).toDouble())
+                    val r = if (i % 2 == 0) w * 0.10f else w * 0.045f
+                    val x = w * 0.50f + (kotlin.math.cos(a) * r).toFloat()
+                    val y = h * 0.68f + (kotlin.math.sin(a) * r).toFloat()
+                    if (i == 0) moveTo(x, y) else lineTo(x, y)
+                }
+                close()
+            }
+            drawPath(star, Color(0xFFFFB703))
+        }
+        if (seasonal != null) {
+            Text(
+                seasonal,
+                fontSize = (size.value * 0.30f).sp,
+                modifier = Modifier.align(Alignment.BottomEnd).padding(2.dp)
+            )
+        }
     }
 }
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.*
@@ -28,6 +29,7 @@ import com.fiestadecartas.app.R
 import com.fiestadecartas.app.Screen
 import com.fiestadecartas.app.ads.Interstitial
 import com.fiestadecartas.app.data.Avatars
+import com.fiestadecartas.app.data.BotSettings
 import com.fiestadecartas.app.data.GameConfig
 import com.fiestadecartas.app.data.Prefs
 import com.fiestadecartas.app.data.Profile
@@ -36,10 +38,13 @@ import com.fiestadecartas.app.ui.ConfettiOverlay
 import com.fiestadecartas.app.ui.Feedback
 import com.fiestadecartas.app.ui.GameScaffold
 import com.fiestadecartas.app.ui.GlassPanel
+import com.fiestadecartas.app.ui.MatchHistoryDialog
+import com.fiestadecartas.app.ui.MatchHistoryStrip
 import com.fiestadecartas.app.ui.PlayerBadge
 import com.fiestadecartas.app.ui.PrimaryButton
 import com.fiestadecartas.app.ui.SpanishCardView
 import com.fiestadecartas.app.ui.StatChip
+import com.fiestadecartas.app.ui.rememberMatchHistory
 import com.fiestadecartas.app.ui.theme.LocalPalette
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -93,6 +98,8 @@ fun NerviosoScreen(lan: Boolean = false, hotseat: Boolean = false) {
         NerviosoGame(names, bots, seed + restart * 89L, GameConfig.nerviosoStartCards)
     }
     val activeSeat = if (localHotseat) game.current else mySeat
+    val history = rememberMatchHistory(game.message)
+    var showHistory by remember { mutableStateOf(false) }
     val myHand = game.hands.getOrNull(activeSeat).orEmpty()
     val canPlay = game.phase == NerviosoPhase.TURN && game.current == activeSeat
     val nextSlapSeat = (0 until names.size).firstOrNull { it !in game.slaps } ?: -1
@@ -162,7 +169,7 @@ fun NerviosoScreen(lan: Boolean = false, hotseat: Boolean = false) {
         if (game.phase == NerviosoPhase.TURN && game.isBotTurn() && isHost) {
             delay(950)
             val seat = game.current
-            val idx = game.botPick(seat)
+            val idx = game.botPick(seat, BotSettings.difficulty)
             if (idx >= 0) {
                 game.playCard(seat, idx)
                 Feedback.click()
@@ -175,7 +182,7 @@ fun NerviosoScreen(lan: Boolean = false, hotseat: Boolean = false) {
         if (game.phase == NerviosoPhase.SLAP && isHost) {
             bots.forEachIndexed { order, seat ->
                 launch {
-                    delay(game.botSlapDelay(seat) + order * 140L)
+                    delay(game.botSlapDelay(seat, BotSettings.difficulty) + order * 140L)
                     if (game.phase == NerviosoPhase.SLAP && seat !in game.slaps) {
                         game.slap(seat)
                         Feedback.click()
@@ -217,6 +224,7 @@ fun NerviosoScreen(lan: Boolean = false, hotseat: Boolean = false) {
             Nav.go(Screen.Home)
         },
         actions = {
+            IconButton(onClick = { showHistory = true }) { Icon(Icons.Rounded.History, null) }
             IconButton(onClick = { showRules = true }) { Icon(Icons.Rounded.Info, null) }
             IconButton(onClick = { restart++; Feedback.click() }) { Icon(Icons.Rounded.Refresh, null) }
         }
@@ -414,6 +422,8 @@ fun NerviosoScreen(lan: Boolean = false, hotseat: Boolean = false) {
                     )
                 }
             }
+            Spacer(Modifier.height(8.dp))
+            MatchHistoryStrip(history, onOpen = { showHistory = true })
             Spacer(Modifier.height(10.dp))
         }
         ConfettiOverlay(visible = game.phase == NerviosoPhase.OVER && game.winner == activeSeat)
@@ -430,5 +440,8 @@ fun NerviosoScreen(lan: Boolean = false, hotseat: Boolean = false) {
             text = { Text(stringResource(R.string.rules_nervioso)) },
             confirmButton = { TextButton(onClick = { showRules = false }) { Text(stringResource(R.string.got_it)) } }
         )
+    }
+    if (showHistory) {
+        MatchHistoryDialog(history, onDismiss = { showHistory = false })
     }
 }

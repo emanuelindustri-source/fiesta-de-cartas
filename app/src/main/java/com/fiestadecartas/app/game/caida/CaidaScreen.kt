@@ -38,6 +38,7 @@ import com.fiestadecartas.app.R
 import com.fiestadecartas.app.Screen
 import com.fiestadecartas.app.ads.Interstitial
 import com.fiestadecartas.app.data.Avatars
+import com.fiestadecartas.app.data.BotSettings
 import com.fiestadecartas.app.data.GameConfig
 import com.fiestadecartas.app.data.Prefs
 import com.fiestadecartas.app.data.Profile
@@ -48,12 +49,15 @@ import com.fiestadecartas.app.ui.ConfettiOverlay
 import com.fiestadecartas.app.ui.Feedback
 import com.fiestadecartas.app.ui.GameScaffold
 import com.fiestadecartas.app.ui.GlassPanel
+import com.fiestadecartas.app.ui.MatchHistoryDialog
+import com.fiestadecartas.app.ui.MatchHistoryStrip
 import com.fiestadecartas.app.ui.PlayerBadge
 import com.fiestadecartas.app.ui.PrimaryButton
 import com.fiestadecartas.app.ui.Reveal
 import com.fiestadecartas.app.ui.SecondaryButton
 import com.fiestadecartas.app.ui.SpanishCardView
 import com.fiestadecartas.app.ui.StatChip
+import com.fiestadecartas.app.ui.rememberMatchHistory
 import com.fiestadecartas.app.ui.theme.LocalPalette
 import kotlinx.coroutines.delay
 
@@ -109,6 +113,8 @@ fun CaidaScreen(lan: Boolean = false, hotseat: Boolean = false) {
     val game = remember(seed, restart, playersCount, target, localHotseat, mySeat) {
         CaidaGame(names, botSeats, seed + restart * 97L, mySeat, target)
     }
+    val history = rememberMatchHistory(game.message)
+    var showHistory by remember { mutableStateOf(false) }
     val isHost = !isLan || LanSession.role == "host"
     val seatColors = listOf(Color(0xFFE63946), Color(0xFF2A9D8F), Color(0xFFFFB703), Color(0xFF3A86FF))
     fun avatarFor(seat: Int) = if (!isLan) {
@@ -141,7 +147,7 @@ fun CaidaScreen(lan: Boolean = false, hotseat: Boolean = false) {
     LaunchedEffect(revision, game.current, game.phase) {
         if (game.phase == CaidaPhase.PLAYING && game.isBotTurn() && isHost) {
             delay(850)
-            val idx = game.botMove()
+            val idx = game.botMove(BotSettings.difficulty)
             if (idx >= 0) {
                 game.playCard(idx)
                 revision++
@@ -231,6 +237,7 @@ fun CaidaScreen(lan: Boolean = false, hotseat: Boolean = false) {
             Nav.go(Screen.Home)
         },
         actions = {
+            IconButton(onClick = { showHistory = true }) { Icon(Icons.Rounded.History, null) }
             IconButton(onClick = { showRules = true }) { Icon(Icons.Rounded.Info, null) }
             if (!isLan) {
                 IconButton(onClick = { Nav.go(Screen.Lobby("caida")) }) {
@@ -482,7 +489,9 @@ fun CaidaScreen(lan: Boolean = false, hotseat: Boolean = false) {
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f)
                 )
             }
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(10.dp))
+            MatchHistoryStrip(history, onOpen = { showHistory = true })
+            Spacer(Modifier.height(4.dp))
             Text(
                 game.log.lastOrNull().orEmpty(),
                 style = MaterialTheme.typography.labelSmall,
@@ -519,6 +528,9 @@ fun CaidaScreen(lan: Boolean = false, hotseat: Boolean = false) {
             text = { Text(stringResource(R.string.rules_caida)) },
             confirmButton = { TextButton(onClick = { showRules = false }) { Text(stringResource(R.string.got_it)) } }
         )
+    }
+    if (showHistory) {
+        MatchHistoryDialog(history, onDismiss = { showHistory = false })
     }
 }
 

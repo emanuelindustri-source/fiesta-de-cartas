@@ -304,4 +304,14 @@
     <string name="support_error">Impossibile avviare il supporto: %1$s</string>
     <string name="play_hotseat">Senza bot · stesso telefono</string>
     <string name="player_number">Giocatore %1$d</string>
+    <string name="last_plays">Ultime giocate</string>
+    <string name="full_history">Cronologia completa</string>
+    <string name="no_history">Nessuna giocata. Inizia la partita.</string>
+    <string name="copy_history">Copia cronologia</string>
+    <string name="history_copied">Cronologia copiata</string>
+    <string name="difficulty">Livello dei bot</string>
+    <string name="difficulty_easy">Rilassato</string>
+    <string name="difficulty_normal">Equilibrato</string>
+    <string name="difficulty_hard">Impegnativo</string>
+    <string name="difficulty_hint">Rilassato sbaglia; Equilibrato gioca bene; Impegnativo punisce ogni errore.</string>
 </resources>

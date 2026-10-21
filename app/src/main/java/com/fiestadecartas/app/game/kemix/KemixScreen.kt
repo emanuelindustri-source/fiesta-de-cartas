@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.*
@@ -27,6 +28,7 @@ import com.fiestadecartas.app.R
 import com.fiestadecartas.app.Screen
 import com.fiestadecartas.app.ads.Interstitial
 import com.fiestadecartas.app.data.Avatars
+import com.fiestadecartas.app.data.BotSettings
 import com.fiestadecartas.app.data.Prefs
 import com.fiestadecartas.app.data.Profile
 import com.fiestadecartas.app.net.LanSession
@@ -35,9 +37,12 @@ import com.fiestadecartas.app.ui.Feedback
 import com.fiestadecartas.app.ui.GameScaffold
 import com.fiestadecartas.app.ui.GlassPanel
 import com.fiestadecartas.app.ui.KemixCardView
+import com.fiestadecartas.app.ui.MatchHistoryDialog
+import com.fiestadecartas.app.ui.MatchHistoryStrip
 import com.fiestadecartas.app.ui.PlayerBadge
 import com.fiestadecartas.app.ui.PrimaryButton
 import com.fiestadecartas.app.ui.StatChip
+import com.fiestadecartas.app.ui.rememberMatchHistory
 import com.fiestadecartas.app.ui.theme.LocalPalette
 import kotlinx.coroutines.delay
 
@@ -90,6 +95,8 @@ fun KemixScreen(lan: Boolean = false, hotseat: Boolean = false) {
         KemixGame(names, bots, seed + restart * 53L)
     }
     val activeSeat = if (localHotseat) game.current else mySeat
+    val history = rememberMatchHistory(game.message)
+    var showHistory by remember { mutableStateOf(false) }
     val canAct = game.phase == KemixPhase.PLAYING && game.current == activeSeat && !game.pendingHide
     val isHost = !isLan || LanSession.role == "host"
 
@@ -119,7 +126,7 @@ fun KemixScreen(lan: Boolean = false, hotseat: Boolean = false) {
         if (game.phase == KemixPhase.PLAYING && game.isBotTurn() && !game.pendingHide && isHost) {
             if (game.firstFlip < 0) {
                 delay(750)
-                val pick = game.botFirstPick()
+                val pick = game.botFirstPick(BotSettings.difficulty)
                 if (pick >= 0 && game.flip(pick)) {
                     Feedback.click()
                     revision++
@@ -127,7 +134,7 @@ fun KemixScreen(lan: Boolean = false, hotseat: Boolean = false) {
                 }
             } else {
                 delay(800)
-                val pick = game.botSecondPick(game.firstFlip)
+                val pick = game.botSecondPick(game.firstFlip, BotSettings.difficulty)
                 if (pick >= 0) {
                     val matched = game.cards[pick].family == game.cards[game.firstFlip].family
                     if (game.flip(pick)) {
@@ -169,6 +176,7 @@ fun KemixScreen(lan: Boolean = false, hotseat: Boolean = false) {
             Nav.go(Screen.Home)
         },
         actions = {
+            IconButton(onClick = { showHistory = true }) { Icon(Icons.Rounded.History, null) }
             IconButton(onClick = { showRules = true }) { Icon(Icons.Rounded.Info, null) }
             IconButton(onClick = { restart++; Feedback.click() }) { Icon(Icons.Rounded.Refresh, null) }
         }
@@ -284,6 +292,8 @@ fun KemixScreen(lan: Boolean = false, hotseat: Boolean = false) {
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
                 textAlign = TextAlign.Center
             )
+            Spacer(Modifier.height(8.dp))
+            MatchHistoryStrip(history, onOpen = { showHistory = true })
             Spacer(Modifier.height(10.dp))
         }
         ConfettiOverlay(visible = game.phase == KemixPhase.OVER && game.winner == activeSeat)
@@ -340,5 +350,8 @@ fun KemixScreen(lan: Boolean = false, hotseat: Boolean = false) {
             text = { Text(stringResource(R.string.rules_kemix)) },
             confirmButton = { TextButton(onClick = { showRules = false }) { Text(stringResource(R.string.got_it)) } }
         )
+    }
+    if (showHistory) {
+        MatchHistoryDialog(history, onDismiss = { showHistory = false })
     }
 }

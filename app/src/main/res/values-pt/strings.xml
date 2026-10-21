@@ -304,4 +304,14 @@
     <string name="support_error">Não foi possível iniciar o apoio: %1$s</string>
     <string name="play_hotseat">Sem bots · mesmo telefone</string>
     <string name="player_number">Jogador %1$d</string>
+    <string name="last_plays">Últimas jogadas</string>
+    <string name="full_history">Histórico completo</string>
+    <string name="no_history">Ainda não há jogadas. Comece a partida.</string>
+    <string name="copy_history">Copiar histórico</string>
+    <string name="history_copied">Histórico copiado</string>
+    <string name="difficulty">Nível dos bots</string>
+    <string name="difficulty_easy">Relaxado</string>
+    <string name="difficulty_normal">Equilibrado</string>
+    <string name="difficulty_hard">Desafiador</string>
+    <string name="difficulty_hint">Relaxado erra; Equilibrado joga bem; Desafiador castiga cada deslize.</string>
 </resources>

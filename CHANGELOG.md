@@ -4,6 +4,27 @@ All notable changes to Fiesta de Cartas are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 semantic versioning.
 
+## [1.3.0] — 2026-10-21
+
+### Added
+
+- In-match history in all five games: the last five actions are always visible and a
+  submenu opens the complete match log with copy-to-clipboard.
+- Bot difficulty selector (Relaxed, Balanced, Challenging) persisted across matches,
+  with distinct decision-making in every engine.
+- New adaptive app icon and in-app brand mark with a card fan and seasonal badge.
+- Richer 44.1 kHz stereo seasonal music and sound effects encoded as OGG, with
+  multi-tap ambience and clearer transients.
+- Card flight animation in Fiesta de Colores and 3D flip animation in Kemix.
+
+### Changed
+
+- Ludo board now has a subtle perspective tilt, a more dimensional frame, token
+  shadows/highlights and a marker for the last moved token.
+- Seasonal scenes and particles are lighter on the CPU.
+- Default bot level is Balanced; Relaxed makes mistakes and Challenging punishes
+  unsafe plays.
+
 ## [1.2.0] — 2026-10-21
 
 ### Added

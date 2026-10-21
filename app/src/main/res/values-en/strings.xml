@@ -304,4 +304,14 @@
     <string name="support_error">Could not start support: %1$s</string>
     <string name="play_hotseat">No bots · same phone</string>
     <string name="player_number">Player %1$d</string>
+    <string name="last_plays">Last plays</string>
+    <string name="full_history">Full history</string>
+    <string name="no_history">No plays yet. Start the match.</string>
+    <string name="copy_history">Copy history</string>
+    <string name="history_copied">History copied</string>
+    <string name="difficulty">Bot level</string>
+    <string name="difficulty_easy">Relaxed</string>
+    <string name="difficulty_normal">Balanced</string>
+    <string name="difficulty_hard">Challenging</string>
+    <string name="difficulty_hint">Relaxed makes mistakes; Balanced plays well; Challenging punishes every slip.</string>
 </resources>

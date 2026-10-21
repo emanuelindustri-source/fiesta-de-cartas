@@ -304,4 +304,14 @@
     <string name="support_error">无法启动支持：%1$s</string>
     <string name="play_hotseat">无机器人 · 同设备</string>
     <string name="player_number">玩家 %1$d</string>
+    <string name="last_plays">最近出牌</string>
+    <string name="full_history">完整记录</string>
+    <string name="no_history">还没有出牌，开始对局吧。</string>
+    <string name="copy_history">复制记录</string>
+    <string name="history_copied">记录已复制</string>
+    <string name="difficulty">机器人难度</string>
+    <string name="difficulty_easy">轻松</string>
+    <string name="difficulty_normal">均衡</string>
+    <string name="difficulty_hard">挑战</string>
+    <string name="difficulty_hint">轻松会失误；均衡发挥稳定；挑战会惩罚每个疏忽。</string>
 </resources>

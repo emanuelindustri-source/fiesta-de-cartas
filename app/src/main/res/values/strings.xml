@@ -304,5 +304,15 @@
     <string name="support_error">No se pudo iniciar el apoyo: %1$s</string>
     <string name="play_hotseat">Sin bots · mismo teléfono</string>
     <string name="player_number">Jugador %1$d</string>
+    <string name="last_plays">Últimas jugadas</string>
+    <string name="full_history">Historial completo</string>
+    <string name="no_history">Todavía no hay jugadas. Empieza la partida.</string>
+    <string name="copy_history">Copiar historial</string>
+    <string name="history_copied">Historial copiado</string>
+    <string name="difficulty">Nivel de los bots</string>
+    <string name="difficulty_easy">Relajado</string>
+    <string name="difficulty_normal">Equilibrado</string>
+    <string name="difficulty_hard">Desafiante</string>
+    <string name="difficulty_hint">Relajado comete errores; Equilibrado juega bien; Desafiante castiga cada descuido.</string>
 </resources>
 

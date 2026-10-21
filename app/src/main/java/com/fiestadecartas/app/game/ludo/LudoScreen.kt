@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -38,6 +39,7 @@ import com.fiestadecartas.app.R
 import com.fiestadecartas.app.Screen
 import com.fiestadecartas.app.ads.Interstitial
 import com.fiestadecartas.app.data.Avatars
+import com.fiestadecartas.app.data.BotSettings
 import com.fiestadecartas.app.data.GameConfig
 import com.fiestadecartas.app.data.Prefs
 import com.fiestadecartas.app.data.Profile
@@ -47,10 +49,13 @@ import com.fiestadecartas.app.ui.DiceView
 import com.fiestadecartas.app.ui.Feedback
 import com.fiestadecartas.app.ui.GameScaffold
 import com.fiestadecartas.app.ui.GlassPanel
+import com.fiestadecartas.app.ui.MatchHistoryDialog
+import com.fiestadecartas.app.ui.MatchHistoryStrip
 import com.fiestadecartas.app.ui.PlayerBadge
 import com.fiestadecartas.app.ui.PrimaryButton
 import com.fiestadecartas.app.ui.SecondaryButton
 import com.fiestadecartas.app.ui.StatChip
+import com.fiestadecartas.app.ui.rememberMatchHistory
 import com.fiestadecartas.app.ui.theme.LocalPalette
 import kotlinx.coroutines.delay
 import kotlin.math.pow
@@ -116,6 +121,8 @@ fun LudoScreen(lan: Boolean = false, hotseat: Boolean = false) {
     }
     val isHost = !isLan || LanSession.role == "host"
     val activeSeat = if (localHotseat) game.current else mySeat
+    val history = rememberMatchHistory(game.message)
+    var showHistory by remember { mutableStateOf(false) }
     val movable = if (game.rolled && game.current == activeSeat) game.legalMoves() else emptyList()
 
     fun sendAndApply(action: String, block: () -> Unit) {
@@ -155,7 +162,7 @@ fun LudoScreen(lan: Boolean = false, hotseat: Boolean = false) {
                     game.pass(); revision++
                     if (isLan) LanSession.sendAction("P")
                 } else {
-                    val token = game.botPick()
+                    val token = game.botPick(BotSettings.difficulty)
                     game.move(token); revision++
                     if (isLan) LanSession.sendAction("M:$token")
                 }
@@ -183,6 +190,7 @@ fun LudoScreen(lan: Boolean = false, hotseat: Boolean = false) {
             Nav.go(Screen.Home)
         },
         actions = {
+            IconButton(onClick = { showHistory = true }) { Icon(Icons.Rounded.History, null) }
             IconButton(onClick = { showRules = true }) { Icon(Icons.Rounded.Info, null) }
             if (!isLan) {
                 IconButton(onClick = { Nav.go(Screen.Lobby("ludo")) }) {
@@ -285,6 +293,7 @@ fun LudoScreen(lan: Boolean = false, hotseat: Boolean = false) {
                         }
                     }
                 }
+                MatchHistoryStrip(history, onOpen = { showHistory = true }, modifier = Modifier.padding(top = 8.dp))
             }
             Spacer(Modifier.height(10.dp))
         }
@@ -316,6 +325,9 @@ fun LudoScreen(lan: Boolean = false, hotseat: Boolean = false) {
             confirmButton = { TextButton(onClick = { showRules = false }) { Text(stringResource(R.string.got_it)) } }
         )
     }
+    if (showHistory) {
+        MatchHistoryDialog(history, onDismiss = { showHistory = false })
+    }
 }
 
 @Composable
@@ -328,7 +340,12 @@ private fun LudoBoard(game: LudoGame, movable: List<Int>, mySeat: Int, onToken: 
     val track = Color(0xFFF2E7D0)
 
     Canvas(
-        modifier.pointerInput(movable, game.rolled, game.current) {
+        modifier
+            .graphicsLayer {
+                rotationX = 7f
+                cameraDistance = 14f * density
+            }
+            .pointerInput(movable, game.rolled, game.current) {
             detectTapGestures { tap ->
                 if (movable.isEmpty() || game.current != mySeat) return@detectTapGestures
                 val cell = minOf(size.width, size.height) / 15f
@@ -542,6 +559,14 @@ private fun LudoBoard(game: LudoGame, movable: List<Int>, mySeat: Int, onToken: 
                     )
                 }
                 val isHome = game.tokens[p][t] == 56
+                if (p == game.lastMovedPlayer && t == game.lastMovedToken) {
+                    drawCircle(
+                        Color.White.copy(alpha = 0.35f),
+                        radius = cell * 0.55f,
+                        center = c,
+                        style = Stroke(width = cell * 0.06f)
+                    )
+                }
                 drawCircle(Color.Black.copy(alpha = 0.24f), radius = cell * 0.42f, center = Offset(c.x + cell * 0.055f, c.y + cell * 0.075f))
                 drawCircle(Color(0xFFFFF6E2), radius = cell * 0.41f, center = c)
                 drawCircle(Color(0xFF8C7B5F).copy(alpha = 0.35f), radius = cell * 0.41f, center = c, style = Stroke(width = cell * 0.035f))

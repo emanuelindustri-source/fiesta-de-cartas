@@ -41,6 +41,8 @@ import com.fiestadecartas.app.Nav
 import com.fiestadecartas.app.R
 import com.fiestadecartas.app.Screen
 import com.fiestadecartas.app.ads.BannerAd
+import com.fiestadecartas.app.data.BotDifficulty
+import com.fiestadecartas.app.data.BotSettings
 import com.fiestadecartas.app.data.DeviceInfo
 import com.fiestadecartas.app.data.GameConfig
 import com.fiestadecartas.app.data.Profile
@@ -109,15 +111,7 @@ fun HomeScreen() {
         ) {
             Spacer(Modifier.height(10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    Modifier.size(46.dp).background(
-                        Brush.linearGradient(listOf(palette.accent, palette.accent2)),
-                        RoundedCornerShape(14.dp)
-                    ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(festival.emoji, fontSize = 24.sp)
-                }
+                BrandMark(size = 46.dp, seasonal = festival.emoji)
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
@@ -310,6 +304,8 @@ private fun MatchSetupDialog(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
                         )
                     }
+                    Spacer(Modifier.height(12.dp))
+                    DifficultyPicker()
                 }
                 Spacer(Modifier.height(14.dp))
                 PrimaryButton(stringResource(R.string.play_bots), Modifier.fillMaxWidth(), onClick = onBots)
@@ -322,6 +318,39 @@ private fun MatchSetupDialog(
             }
         }
     }
+}
+
+@Composable
+private fun DifficultyPicker() {
+    Text(stringResource(R.string.difficulty), style = MaterialTheme.typography.bodyMedium)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        BotDifficulty.entries.forEach { difficulty ->
+            FilterChip(
+                selected = BotSettings.difficulty == difficulty,
+                onClick = {
+                    BotSettings.set(difficulty)
+                    Feedback.click()
+                },
+                label = {
+                    Text(
+                        stringResource(
+                            when (difficulty) {
+                                BotDifficulty.RELAXED -> R.string.difficulty_easy
+                                BotDifficulty.BALANCED -> R.string.difficulty_normal
+                                BotDifficulty.SHARP -> R.string.difficulty_hard
+                            }
+                        ),
+                        fontSize = 12.sp
+                    )
+                }
+            )
+        }
+    }
+    Text(
+        stringResource(R.string.difficulty_hint),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+    )
 }
 
 @Composable

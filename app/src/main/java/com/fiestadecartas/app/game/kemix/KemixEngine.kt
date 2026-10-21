@@ -1,5 +1,6 @@
 package com.fiestadecartas.app.game.kemix
 
+import com.fiestadecartas.app.data.BotDifficulty
 import com.fiestadecartas.app.game.KemixCard
 import com.fiestadecartas.app.game.kemixDeck
 import kotlin.random.Random
@@ -80,18 +81,20 @@ class KemixGame(
         }
     }
 
-    fun botFirstPick(): Int {
+    fun botFirstPick(difficulty: BotDifficulty = BotDifficulty.BALANCED): Int {
         val free = cards.indices.filter { it !in revealed && matchedBy[it] < 0 }
         if (free.isEmpty()) return -1
+        if (difficulty == BotDifficulty.RELAXED && rng.nextFloat() < 0.45f) return free.random(rng)
         val byFamily = seen.filterKeys { it in free }.entries.groupBy { it.value }
         val pair = byFamily.values.firstOrNull { it.size >= 2 }
         if (pair != null) return pair.first().key
         return free.random(rng)
     }
 
-    fun botSecondPick(first: Int): Int {
+    fun botSecondPick(first: Int, difficulty: BotDifficulty = BotDifficulty.BALANCED): Int {
         val free = cards.indices.filter { it !in revealed && matchedBy[it] < 0 && it != first }
         if (free.isEmpty()) return -1
+        if (difficulty == BotDifficulty.RELAXED && rng.nextFloat() < 0.45f) return free.random(rng)
         val match = free.firstOrNull { cards[it].family == cards[first].family }
         if (match != null) return match
         val known = free.firstOrNull { seen[it] == cards[first].family }

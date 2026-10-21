@@ -1,5 +1,6 @@
 package com.fiestadecartas.app.game.caida
 
+import com.fiestadecartas.app.data.BotDifficulty
 import com.fiestadecartas.app.game.SpanishCard
 import com.fiestadecartas.app.game.spanishDeck
 import kotlin.random.Random
@@ -215,18 +216,35 @@ class CaidaGame(
         }
     }
 
-    fun botMove(): Int {
+    fun botMove(difficulty: BotDifficulty = BotDifficulty.BALANCED): Int {
         if (phase != CaidaPhase.PLAYING) return -1
-        val capture = playableIndexForCapture()
-        if (capture >= 0) return capture
-        // Avoid feeding a card that the next player can capture when possible.
         val hand = hands[current]
         if (hand.isEmpty()) return -1
-        val nextTop = hand.map { it.rank }
+        if (difficulty == BotDifficulty.RELAXED) {
+            val capture = playableIndexForCapture()
+            if (capture >= 0 && rng.nextFloat() < 0.55f) return capture
+            return rng.nextInt(hand.size)
+        }
+        val capture = bestCaptureIndex()
+        if (capture >= 0) return capture
+        // Avoid feeding a card that the next player can capture when possible.
         val nextSafe = hands[(current + 1) % n].map { it.rank }.toSet()
-        val candidates = hand.indices.filter { nextTop[it] !in nextSafe }
+        val candidates = hand.indices.filter { hand[it].rank !in nextSafe }
         val pool = if (candidates.isNotEmpty()) candidates else hand.indices
-        return pool.minByOrNull { hand[it].points } ?: 0
+        return if (difficulty == BotDifficulty.SHARP) {
+            pool.minByOrNull { hand[it].points } ?: 0
+        } else {
+            pool.minByOrNull { hand[it].points } ?: 0
+        }
+    }
+
+    private fun bestCaptureIndex(): Int {
+        if (table.isEmpty()) return -1
+        val top = table.last().rank
+        return hands[current].indices
+            .filter { hands[current][it].rank == top }
+            .maxByOrNull { hands[current][it].points }
+            ?: -1
     }
 
     fun isBotTurn(): Boolean = current in botSeats && phase == CaidaPhase.PLAYING

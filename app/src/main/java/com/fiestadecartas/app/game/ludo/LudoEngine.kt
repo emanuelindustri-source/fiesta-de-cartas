@@ -1,5 +1,6 @@
 package com.fiestadecartas.app.game.ludo
 
+import com.fiestadecartas.app.data.BotDifficulty
 import kotlin.random.Random
 
 data class Cell(val x: Int, val y: Int)
@@ -60,6 +61,8 @@ class LudoGame(
         private set
     var lastMovedToken = -1
         private set
+    var lastMovedPlayer = -1
+        private set
     var lastCapture = false
         private set
     var lastHome = false
@@ -72,6 +75,7 @@ class LudoGame(
         lastCapture = false
         lastHome = false
         lastMovedToken = -1
+        lastMovedPlayer = -1
         if (dice == 6) sixStreak += 1 else sixStreak = 0
         message = "${names[current]} sacó $dice"
         if (sixStreak >= 3) {
@@ -106,6 +110,7 @@ class LudoGame(
         val target = if (old < 0) 0 else old + dice
         tokens[player][token] = target
         lastMovedToken = token
+        lastMovedPlayer = player
         lastHome = target == 56
         lastCapture = false
         if (target in 0..50) {
@@ -159,16 +164,17 @@ class LudoGame(
         message = "Turno de ${names[current]}"
     }
 
-    fun botMove(): Boolean {
+    fun botMove(difficulty: BotDifficulty = BotDifficulty.BALANCED): Boolean {
         if (phase != LudoPhase.PLAYING) return false
         if (!rolled) return roll()
         val moves = legalMoves()
         if (moves.isEmpty()) return pass()
-        return move(botPick())
+        return move(botPick(difficulty))
     }
 
-    fun botPick(): Int {
+    fun botPick(difficulty: BotDifficulty = BotDifficulty.BALANCED): Int {
         val moves = legalMoves()
+        if (difficulty == BotDifficulty.RELAXED) return moves.random(rng)
         val chosen = moves.maxByOrNull { t ->
             val pos = tokens[current][t]
             var score = 0

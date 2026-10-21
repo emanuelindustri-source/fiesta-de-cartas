@@ -1,5 +1,6 @@
 package com.fiestadecartas.app.game.nervioso
 
+import com.fiestadecartas.app.data.BotDifficulty
 import com.fiestadecartas.app.game.SpanishCard
 import com.fiestadecartas.app.game.spanishDeck
 import kotlin.random.Random
@@ -103,16 +104,26 @@ class NerviosoGame(
         return -1
     }
 
-    fun botPick(seat: Int): Int {
+    fun botPick(seat: Int, difficulty: BotDifficulty = BotDifficulty.BALANCED): Int {
         val hand = hands.getOrNull(seat).orEmpty()
         if (hand.isEmpty()) return -1
+        val chance = when (difficulty) {
+            BotDifficulty.RELAXED -> 0.34f
+            BotDifficulty.BALANCED -> 0.62f
+            BotDifficulty.SHARP -> 0.88f
+        }
         val match = hand.indexOfFirst { it.rank == announced }
-        return if (match >= 0 && rng.nextFloat() < 0.62f) match else rng.nextInt(hand.size)
+        return if (match >= 0 && rng.nextFloat() < chance) match else rng.nextInt(hand.size)
     }
 
-    fun botSlapDelay(seat: Int): Long {
+    fun botSlapDelay(seat: Int, difficulty: BotDifficulty = BotDifficulty.BALANCED): Long {
         val base = 420L + (seat * 137L) % 260L
-        return base + rng.nextLong(0L, 220L)
+        val modifier = when (difficulty) {
+            BotDifficulty.RELAXED -> 260L
+            BotDifficulty.BALANCED -> 0L
+            BotDifficulty.SHARP -> -110L
+        }
+        return (base + modifier + rng.nextLong(0L, 220L)).coerceAtLeast(120L)
     }
 
     fun isBotTurn(): Boolean = current in botSeats && phase == NerviosoPhase.TURN

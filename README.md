@@ -38,7 +38,11 @@ También incluye:
 - **Perfil con niveles 1–100**: cada partida da puntos de experiencia; ganar da más. La curva está pensada para durar meses y el progreso queda guardado en el teléfono.
 - **10 avatares originales** inspirados en la fauna venezolana (turpial, guacamaya, jaguar, caimán, delfín, tortuga, mono, flamenco, mariposa y ardilla). Se eligen en el Perfil y reaccionan durante las partidas.
 - **Reglas configurables** antes de cada partida: número de jugadores y puntos objetivo en Caída y Fiesta de Colores, fichas para ganar en Ludo y cartas iniciales en Nervioso.
-- **Animaciones de mesa**: reparto carta por carta, carta que vuela hacia la mesa, mesa que tiembla en una caída, avatares que reaccionan y sonido/vibración. En Caída también se puede **deslizar la carta hacia arriba** para jugarla.
+- **Historial de partida** en los cinco juegos: las últimas 5 jugadas siempre visibles y un submenú con el historial completo, copiable al portapapeles.
+- **Dificultad de bots** configurable: Relajado comete errores, Equilibrado juega bien y Desafiante castiga los descuidos.
+- **Música y efectos en estéreo 44,1 kHz** con ambientes por temporada y sonidos de reparto, golpe, canto, dado, victoria y moneda.
+- **Animaciones fluidas**: reparto, carta que vuela en Caída y Fiesta de Colores, volteo 3D de Kemix, mesa que tiembla, dado que rebota y fichas con volumen.
+- **Baraja y tablero con acabado**: papel envejecido, figuras ilustradas, marco de Ludo con perspectiva y sombras, monedas dibujadas y nuevo icono/logo de la app.
 - **Temporadas en toda la app**: octubre se vive como Halloween en el fondo, los menús, los títulos, las partículas, los sonidos y los textos. Navidad, Reyes, San Valentín, Pascua y Semana Santa tienen su propia escena y ambiente sonoro.
 - **Arte renovado**: baraja española con papel envejecido, esquinas ornamentadas, pips reales y figuras de Rey, Caballo y Sota; cartas de colores con brillo, dado 3D, tablero de Ludo con marco de madera, estrellas y fichas con volumen, y monedas dibujadas.
 - **Sonido ambiental por temporada** y efectos de reparto, golpe, canto, dado, victoria y moneda. Se apaga desde Ajustes.
@@ -52,11 +56,11 @@ También incluye:
 
 - Ruta: `app/build/outputs/apk/release/app-release.apk`
 - Paquete: `com.fiestadecartas.app`
-- Versión: `1.2.0` (versionCode 3)
+- Versión: `1.3.0` (versionCode 4)
 - Compatible con Android 7.0 o superior (API 24+); probada en Android 14 (API 34).
 - Firma: certificado de producción `CN=Fiesta de Cartas`, creado con el keystore `fiesta-release.jks`.
-- SHA-256 del APK: `448B561000157CAEE63CE2944926731B546902833F80C10848BF22ED13987204`
-- Tamaño: 37.135.294 bytes (37,1 MB).
+- SHA-256 del APK: `F65A1EF2FA0CD96965B16AA652E170B7FCCBBCCA18352E9A8C429F6F360F0F3D`
+- Tamaño: 35.370.394 bytes (35,4 MB).
 
 ### Instalar en un teléfono
 
@@ -117,6 +121,24 @@ Al tocar una tarjeta de juego aparece la configuración de la partida:
 | Kemix | 6 parejas y 4 jugadores |
 
 El anfitrión usa el número de jugadores elegido al crear la sala WiFi.
+
+## Historial de la partida
+
+- Mientras juegas, la franja **Últimas jugadas** muestra los cinco movimientos más recientes.
+- El botón de historial (o **Ver todo**) abre el registro completo de la partida, con la opción de copiarlo al portapapeles.
+- El historial se reinicia al empezar una partida nueva y no se envía a ningún servidor.
+
+## Dificultad de los bots
+
+Antes de empezar puedes elegir:
+
+| Nivel | Comportamiento |
+|---|---|
+| **Relajado** | Comete errores a propósito; ideal para aprender o jugar con niños. |
+| **Equilibrado** | Juega bien, pero deja oportunidades. Es el nivel por defecto. |
+| **Desafiante** | Prioriza capturas, seguridad y puntos; castiga los descuidos. |
+
+La dificultad se guarda y se aplica a Caída, Ludo, Fiesta de Colores, Kemix y Nervioso.
 
 ## Calificar la app y comentarios
 
