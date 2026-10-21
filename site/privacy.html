@@ -15,7 +15,8 @@
   <header class="site-header scrolled">
     <div class="wrap header-inner">
       <a class="brand" href="./"><img src="./assets/logo.svg" alt="" width="42" height="42" /><span>Fiesta de Cartas</span></a>
-      <nav class="site-nav" aria-label="Principal" style="display:flex">
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Principal">
         <a href="./#juegos">Juegos</a>
         <a href="./#descargar">Descargar</a>
         <a href="./terms.html">Términos</a>
@@ -97,5 +98,6 @@
       </nav>
     </div>
   </footer>
+  <script src="./app.js" defer></script>
 </body>
 </html>

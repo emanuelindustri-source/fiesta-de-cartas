@@ -93,6 +93,7 @@
 
   const html = document.documentElement;
   const nodes = [...document.querySelectorAll("[data-i18n]")];
+  const hasTranslations = nodes.length > 0;
   nodes.forEach((node) => { node.dataset.es = node.textContent; });
 
   const toggle = document.querySelector(".lang-toggle");
@@ -112,7 +113,7 @@
 
   let stored = "es";
   try { stored = localStorage.getItem("fiesta-lang") || "es"; } catch (_) { /* ignore */ }
-  if (stored === "en") setLanguage("en");
+  if (stored === "en" && hasTranslations) setLanguage("en");
   if (toggle) toggle.addEventListener("click", () => setLanguage(html.lang === "en" ? "es" : "en"));
 
   const header = document.querySelector(".site-header");
