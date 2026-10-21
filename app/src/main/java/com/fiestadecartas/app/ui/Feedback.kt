@@ -27,14 +27,15 @@ object Feedback {
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build()
             val sp = SoundPool.Builder().setMaxStreams(6).setAudioAttributes(attributes).build()
+            val pending = mutableMapOf<Int, Int>()
+            sp.setOnLoadCompleteListener { _, sampleId, status ->
+                if (status == 0) pending[sampleId]?.let { res -> ids[res] = sampleId }
+            }
             listOf(
                 R.raw.sfx_deal, R.raw.sfx_slam, R.raw.sfx_canto, R.raw.sfx_dice,
                 R.raw.sfx_win, R.raw.sfx_coin, R.raw.sfx_click, R.raw.sfx_spooky
             ).forEach { res ->
-                sp.setOnLoadCompleteListener { _, sampleId, status ->
-                    if (status == 0) ids[res] = sampleId
-                }
-                sp.load(appContext, res, 1)
+                pending[sp.load(appContext, res, 1)] = res
             }
             pool = sp
         }
