@@ -48,7 +48,7 @@ jobs:
           BT="$ANDROID_HOME/build-tools/34.0.0"
           "$BT/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk
       - name: Publish release asset
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           name: Fiesta de Cartas ${{ github.event.inputs.tag || github.ref_name }}
